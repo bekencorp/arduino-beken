@@ -1,0 +1,94 @@
+name=Arduino Beken
+version=@ARDUINO_BEKEN_VERSION@
+
+tools.arm-none-eabi-gcc.path={runtime.tools.arm-none-eabi-gcc.path}
+tools.arduino-beken-sdk.path={runtime.tools.arduino-beken-sdk.path}
+tools.bk-uploader.path.linux={runtime.platform.path}/tools/bk_loader/linux
+tools.bk-uploader.path.windows={runtime.platform.path}/tools/bk_loader/windows
+tools.bk-uploader.path.macosx=/usr/local/bin
+tools.python.cmd=python3
+tools.python.cmd.windows=python.exe
+tools.bk-uploader.cmd=bk_loader
+tools.bk-uploader.cmd.windows=bk_loader.exe
+
+compiler.path={tools.arm-none-eabi-gcc.path}/bin/
+compiler.sdk.path={tools.arduino-beken-sdk.path}
+compiler.size.cmd=arm-none-eabi-size
+compiler.c.cmd=arm-none-eabi-gcc
+compiler.cpp.cmd=arm-none-eabi-g++
+compiler.S.cmd=arm-none-eabi-gcc
+compiler.ar.cmd=arm-none-eabi-ar
+compiler.objcopy.cmd=arm-none-eabi-objcopy
+
+compiler.c.extra_flags=
+compiler.cpp.extra_flags=
+compiler.S.extra_flags=
+compiler.c.elf.extra_flags=
+
+compiler.sdk.defines=@{compiler.sdk.path}/flags/defines
+compiler.sdk.includes=@{compiler.sdk.path}/flags/includes
+compiler.sdk.force_include=-include {compiler.sdk.path}/include/generated/sdkconfig.h
+compiler.c.flags=@{compiler.sdk.path}/flags/c_flags
+compiler.cpp.flags=@{compiler.sdk.path}/flags/cpp_flags
+compiler.S.flags=@{compiler.sdk.path}/flags/S_flags
+
+build.extra_flags=-DARDUINO={runtime.ide.version} -DARDUINO_ARCH_{build.arch} -DARDUINO_{build.board} -DARDUINO_BEKEN_IDE_BUILD=1 -I{build.path}/bk_generated/include -I{build.path}/sketch -I{runtime.platform.path}/libraries/BLE/src -I{runtime.platform.path}/libraries/WiFi/src
+
+recipe.hooks.prebuild.1.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_generate_partitions.py" --sdk-path "{compiler.sdk.path}" --platform-path "{runtime.platform.path}" --build-path "{build.path}" --project-name "{build.project_name}" --target "{build.mcu}" --partitions-csv "{build.partitions_csv}"
+recipe.hooks.prebuild.2.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_prepare_core.py" --core-path "{build.core.path}" --project-name "{build.project_name}" --sketch-path "{build.source.path}"
+
+recipe.c.o.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_compile.py" --compiler "{compiler.path}{compiler.c.cmd}" --sdk "{compiler.sdk.path}" --flag-file defines --flag-file includes --flag-file c_flags {compiler.sdk.force_include} {compiler.c.extra_flags} {build.extra_flags} {includes} -c "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_compile.py" --compiler "{compiler.path}{compiler.cpp.cmd}" --sdk "{compiler.sdk.path}" --flag-file defines --flag-file includes --flag-file cpp_flags {compiler.sdk.force_include} {compiler.cpp.extra_flags} {build.extra_flags} {includes} -c "{source_file}" -o "{object_file}"
+recipe.S.o.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_compile.py" --compiler "{compiler.path}{compiler.S.cmd}" --sdk "{compiler.sdk.path}" --flag-file defines --flag-file includes --flag-file S_flags {compiler.sdk.force_include} {compiler.S.extra_flags} {build.extra_flags} {includes} -c "{source_file}" -o "{object_file}"
+
+preproc.macros.flags=-w -x c++ -E -CC
+recipe.preproc.macros="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_compile.py" --compiler "{compiler.path}{compiler.cpp.cmd}" --sdk "{compiler.sdk.path}" --flag-file defines --flag-file includes --flag-file cpp_flags {compiler.sdk.force_include} {compiler.cpp.extra_flags} {build.extra_flags} {includes} {preproc.macros.flags} "{source_file}" -o "{preprocessed_file_path}"
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" rcs "{archive_file_path}" "{object_file}"
+recipe.c.combine.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_builder.py" link --compiler "{compiler.path}{compiler.cpp.cmd}" --sdk "{compiler.sdk.path}" --build-path "{build.path}" --project-name "{build.project_name}" --archive "{archive_file_path}" --elf "{build.path}/{build.project_name}.elf" --bin "{build.path}/{build.project_name}.bin" {object_files}
+recipe.objcopy.bin.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_builder.py" objcopy --objcopy "{compiler.path}{compiler.objcopy.cmd}" --sdk "{compiler.sdk.path}" --build-path "{build.path}" --elf "{build.path}/{build.project_name}.elf" --bin "{build.path}/{build.project_name}.bin"
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
+recipe.size.regex=^(?:\.vectors|\.text|\.interrupt\.text|\.ARM\.extab|\.ARM\.exidx|\.copy\.table|\.zero\.table|\.preinit_array|\.init_array|\.fini_array)\s+([0-9]+).*
+recipe.size.regex.data=^(?:\.data|\.bt_spec_data|\.uninitialized|\.PERSIST_MEM|\.REBOOT_TAG|\.bss|\.noinit)\s+([0-9]+).*
+
+tools.bk_uploader.upload.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_uploader.py" upload --tool "{tools.bk-uploader.path}/{tools.bk-uploader.cmd}" --port "{serial.port}" --baud "{upload.speed}" --input "{build.path}/{build.project_name}.all-app.bin"
+
+pluggable_discovery.required.0=builtin:serial-discovery
+pluggable_monitor.required.serial=builtin:serial-monitor
+
+# Sketch debugging (Arduino IDE 2 / arduino-cli debug): J-Link + Cortex-Debug.
+# - Install Segger J-Link so JLinkGDBServer is on PATH (or set debug.server.jlink.path in platform.local.txt).
+# - FreeRTOS: rtos=FreeRTOS enables the J-Link GDB Server FreeRTOS awareness plugin (requires matching kernel symbols in the ELF).
+#   Skip the reset line in platform.local.txt if you must attach without resetting the target.
+debug.executable={build.path}/{build.project_name}.elf
+debug.toolchain=gcc
+debug.toolchain.path={tools.arm-none-eabi-gcc.path}/bin/
+debug.toolchain.prefix=arm-none-eabi
+debug.server=jlink
+debug.server.jlink.path=
+debug.additional_config=debug_config.{build.mcu}
+
+
+# --- debug_config.bk7239n ---
+debug_config.bk7239n.cortex-debug.custom.name=Arduino on Beken BK7239N
+debug_config.bk7239n.cortex-debug.custom.request=attach
+debug_config.bk7239n.cortex-debug.custom.servertype=jlink
+debug_config.bk7239n.cortex-debug.custom.interface=swd
+debug_config.bk7239n.cortex-debug.custom.device=ARMCM33
+debug_config.bk7239n.cortex-debug.custom.rtos=FreeRTOS
+debug_config.bk7239n.cortex-debug.custom.objdumpPath={compiler.path}arm-none-eabi-objdump
+debug_config.bk7239n.cortex-debug.custom.overrideAttachCommands.0=set remote hardware-watchpoint-limit 2
+debug_config.bk7239n.cortex-debug.custom.overrideAttachCommands.1=monitor reset halt
+debug_config.bk7239n.cortex-debug.custom.overrideAttachCommands.2=monitor gdb_sync
+debug_config.bk7239n.cortex-debug.custom.overrideAttachCommands.3=thb setup
+debug_config.bk7239n.cortex-debug.custom.overrideAttachCommands.4=c
+debug_config.bk7239n.cortex-debug.custom.overrideRestartCommands.0=monitor reset halt
+debug_config.bk7239n.cortex-debug.custom.overrideRestartCommands.1=monitor gdb_sync
+debug_config.bk7239n.cortex-debug.custom.overrideRestartCommands.2=thb setup
+debug_config.bk7239n.cortex-debug.custom.overrideRestartCommands.3=c
+
+# Current support level:
+# - Linux/Windows uploaders ship inside the platform tree under tools/bk_loader/
+# - macOS upload uses bk_loader from a manual .pkg install (default /usr/local/bin; override tools.bk-uploader.path.macosx in platform.local.txt)
+# - compile/link consume a packaged arduino-beken SDK export
+# - final image generation emits both {build.project_name}.all-app.bin and legacy all-app.bin
+# - upload uses bk_loader directly against the sketch-specific all-app image

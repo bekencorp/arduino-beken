@@ -1,0 +1,10 @@
+directories:
+  user: .arduino-cli-test/user
+  data: .arduino-cli-test/data
+  downloads: .arduino-cli-test/downloads
+
+build_cache:
+  path: .arduino-cli-test/cache
+
+board_manager:
+  additional_urls: []

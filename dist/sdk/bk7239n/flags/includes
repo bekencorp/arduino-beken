@@ -1,0 +1,2 @@
+-I{compiler.sdk.path}/armino_as_lib/include
+-I{compiler.sdk.path}/include/generated

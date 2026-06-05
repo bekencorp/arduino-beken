@@ -1,0 +1,144 @@
+{% extends "!layout.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  <style>
+    .lang-switch {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      align-items: center;
+      margin: 0 0 1rem;
+    }
+
+    .lang-switch-inner {
+      display: inline-flex;
+      gap: 0.5rem;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.96);
+      padding: 0.35rem 0.45rem;
+      border: 1px solid #d9dfe7;
+      border-radius: 999px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .lang-switch-inner a,
+    .lang-switch-inner .current {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 0.18rem 0.65rem;
+      text-decoration: none;
+      line-height: 1.4;
+    }
+
+    .lang-switch .current {
+      background: #e9f2ff;
+      border-color: #8cb4ff;
+      color: #174ea6;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .lang-switch {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block document %}
+  <div class="lang-switch">
+    <div class="lang-switch-inner">
+      {% if docs_language == "zh_CN" %}
+        <a id="lang-switch-en" href="../en/index.html">English</a>
+        <span class="current">简体中文</span>
+      {% else %}
+        <span class="current">English</span>
+        <a id="lang-switch-zh" href="../zh_CN/index.html">简体中文</a>
+      {% endif %}
+    </div>
+  </div>
+  {{ super() }}
+  <script>
+    (function () {
+      var isZh = {{ 'true' if docs_language == 'zh_CN' else 'false' }};
+      var path = window.location.pathname.replace(/\\/g, '/');
+      var switchId = isZh ? 'lang-switch-en' : 'lang-switch-zh';
+      var link = document.getElementById(switchId);
+      if (!link) return;
+
+      var DOC_PAGE_KEY = 'arduino_beken_docs_page';
+      var otherLang = isZh ? 'en' : 'zh_CN';
+
+      function detectLang(pathname) {
+        if (pathname.indexOf('/zh_CN/') !== -1) return 'zh_CN';
+        if (pathname.indexOf('/en/') !== -1) return 'en';
+        return isZh ? 'zh_CN' : 'en';
+      }
+
+      function splitAtLang(pathname) {
+        var lang = detectLang(pathname);
+        var marker = '/' + lang + '/';
+        var idx = pathname.indexOf(marker);
+        if (idx === -1) return null;
+        return {
+          prefix: pathname.substring(0, idx + 1),
+          suffix: pathname.substring(idx + marker.length),
+        };
+      }
+
+      function isNonDocResource(suffix) {
+        return suffix.indexOf('_static/') === 0 ||
+          suffix.indexOf('_sources/') === 0 ||
+          suffix.indexOf('_images/') === 0;
+      }
+
+      function rememberDocPage(suffix) {
+        if (suffix && !isNonDocResource(suffix)) {
+          sessionStorage.setItem(DOC_PAGE_KEY, suffix);
+        }
+      }
+
+      function currentDocPage() {
+        var parts = splitAtLang(path);
+        if (!parts) {
+          return sessionStorage.getItem(DOC_PAGE_KEY) || 'index.html';
+        }
+        if (!parts.suffix) {
+          return 'index.html';
+        }
+        if (isNonDocResource(parts.suffix)) {
+          return sessionStorage.getItem(DOC_PAGE_KEY) || 'index.html';
+        }
+        return parts.suffix;
+      }
+
+      function buildTarget(targetLang) {
+        var parts = splitAtLang(path);
+        var docPage = currentDocPage();
+        if (parts) {
+          return parts.prefix + targetLang + '/' + docPage;
+        }
+        return (isZh ? '../en/' : '../zh_CN/') + docPage;
+      }
+
+      var docParts = splitAtLang(path);
+      if (docParts && !isNonDocResource(docParts.suffix || '')) {
+        rememberDocPage(docParts.suffix || 'index.html');
+      }
+
+      document.addEventListener('click', function (event) {
+        var anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+        if (!anchor) return;
+        var href = anchor.getAttribute('href') || '';
+        if (href.indexOf('_static/') === -1 && href.indexOf('_images/') === -1) return;
+        var parts = splitAtLang(path);
+        if (!parts || isNonDocResource(parts.suffix || '')) return;
+        rememberDocPage(parts.suffix || 'index.html');
+      }, true);
+
+      link.setAttribute('href', buildTarget(otherLang));
+    })();
+  </script>
+{% endblock %}

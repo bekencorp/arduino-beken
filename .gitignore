@@ -1,0 +1,13 @@
+build/
+dist/release/
+dist/release-check/
+cores/
+.venv-docs/
+docs/site/_build/
+
+# Local Arduino CLI test state
+.arduino-cli-test/
+
+# Python cache
+__pycache__/
+*.pyc

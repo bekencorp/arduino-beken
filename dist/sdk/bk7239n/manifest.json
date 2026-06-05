@@ -1,0 +1,655 @@
+{
+  "name": "arduino",
+  "version": "1.0.0",
+  "target": {
+    "soc": "bk7239n"
+  },
+  "paths": {
+    "sdk_dir": "../../../../bk_idk",
+    "project_root": "../../..",
+    "build_root": "../../../build",
+    "project_build_dir": "../../../build/bk7239n/arduino",
+    "cmake_build_dir": "../../../build/bk7239n/arduino/bk7239n"
+  },
+  "exports": {
+    "root": ".",
+    "generated": [
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/config/sdkconfig.h",
+        "path": "include/generated/sdkconfig.h"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/partitions_gen.h",
+        "path": "include/generated/partitions_gen.h"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/partitions.h",
+        "path": "include/generated/partitions.h"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/bk_package.json",
+        "path": "partitions/bk_package.json"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/bk_ota_partitions.json",
+        "path": "partitions/bk_ota_partitions.json"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/partitions.csv",
+        "path": "partitions/partitions.csv"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/partitions.json",
+        "path": "partitions/partitions.json"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/partitions/partitions.txt",
+        "path": "partitions/partitions.txt"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/sys_persist_config/sys_persist_config_4k.bin",
+        "path": "artifacts/package/sys_persist_config_4k.bin"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/security/ppc_config.bin",
+        "path": "security/ppc_config.bin"
+      },
+      {
+        "source": "../../../../bk_idk/components/bk_libs/bk7239n/bootloader/normal_bootloader/bootloader.bin",
+        "path": "artifacts/package/bootloader.bin"
+      }
+    ],
+    "partition_tools": [
+      {
+        "source": "../../../../bk_idk/tools/build_tools/build_process/bk_build_auto_partition.py",
+        "path": "tools/partition_gen/build_process/bk_build_auto_partition.py"
+      },
+      {
+        "source": "../../../../bk_idk/tools/build_tools/build_process/bk_project.py",
+        "path": "tools/partition_gen/build_process/bk_project.py"
+      },
+      {
+        "source": "../../../../bk_idk/tools/build_tools/build_process/bk_sdk",
+        "path": "tools/partition_gen/build_process/bk_sdk"
+      },
+      {
+        "source": "../../../../bk_idk/tools/env_tools/bk_py_libs/bk_auto_partition",
+        "path": "tools/partition_gen/bk_py_libs/bk_auto_partition"
+      },
+      {
+        "source": "../../../../bk_idk/tools/env_tools/bk_py_libs/bk_flash_partiton",
+        "path": "tools/partition_gen/bk_py_libs/bk_flash_partiton"
+      },
+      {
+        "source": "../../../../bk_idk/tools/env_tools/bk_py_libs/bk_ota_partition",
+        "path": "tools/partition_gen/bk_py_libs/bk_ota_partition"
+      },
+      {
+        "source": "../../../../bk_idk/tools/env_tools/bk_py_libs/bk_packager",
+        "path": "tools/partition_gen/bk_py_libs/bk_packager"
+      },
+      {
+        "source": "../../../../bk_idk/tools/env_tools/bk_py_libs/bk_crc",
+        "path": "tools/partition_gen/bk_py_libs/bk_crc"
+      },
+      {
+        "source": "../../../../bk_idk/tools/env_tools/bk_py_libs/bk_misc",
+        "path": "tools/partition_gen/bk_py_libs/bk_misc"
+      }
+    ],
+    "libraries": [
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/utf8/libutf8.a",
+        "path": "armino_as_lib/bk7239n/libs/libutf8.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/temp_detect/libtemp_detect.a",
+        "path": "armino_as_lib/bk7239n/libs/libtemp_detect.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_rtos/libbk_rtos.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_rtos.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/os_source/libos_source.a",
+        "path": "armino_as_lib/bk7239n/libs/libos_source.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/coredump/libcoredump.a",
+        "path": "armino_as_lib/bk7239n/libs/libcoredump.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/cmsis/libcmsis.a",
+        "path": "armino_as_lib/bk7239n/libs/libcmsis.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/cm33/libcm33.a",
+        "path": "armino_as_lib/bk7239n/libs/libcm33.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_log/libbk_log.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_log.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_bluetooth/libbk_bluetooth.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_bluetooth.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_phy/libbk_phy.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_phy.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_ate/libbk_ate.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_ate.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/base64/libbase64.a",
+        "path": "armino_as_lib/bk7239n/libs/libbase64.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/easy_flash/libeasy_flash.a",
+        "path": "armino_as_lib/bk7239n/libs/libeasy_flash.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/psa_mbedtls/libpsa_mbedtls.a",
+        "path": "armino_as_lib/bk7239n/libs/libpsa_mbedtls.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/driver/libdriver.a",
+        "path": "armino_as_lib/bk7239n/libs/libdriver.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/lwip_intf_v2_1/liblwip_intf_v2_1.a",
+        "path": "armino_as_lib/bk7239n/libs/liblwip_intf_v2_1.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_netif/libbk_netif.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_netif.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/wpa_supplicant-2.10/libwpa_supplicant-2.10.a",
+        "path": "armino_as_lib/bk7239n/libs/libwpa_supplicant-2.10.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_adapter/libbk_adapter.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_adapter.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/uart_debug/libuart_debug.a",
+        "path": "armino_as_lib/bk7239n/libs/libuart_debug.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_wifi/libbk_wifi.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_wifi.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_system/libbk_system.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_system.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/iperf/libiperf.a",
+        "path": "armino_as_lib/bk7239n/libs/libiperf.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/vnd_cal/libvnd_cal.a",
+        "path": "armino_as_lib/bk7239n/libs/libvnd_cal.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_init/libbk_init.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_init.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/ali_mqtt/libali_mqtt.a",
+        "path": "armino_as_lib/bk7239n/libs/libali_mqtt.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bt/libbt.a",
+        "path": "armino_as_lib/bk7239n/libs/libbt.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/at/libat.a",
+        "path": "armino_as_lib/bk7239n/libs/libat.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/unity/libunity.a",
+        "path": "armino_as_lib/bk7239n/libs/libunity.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/ota/libota.a",
+        "path": "armino_as_lib/bk7239n/libs/libota.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/http/libhttp.a",
+        "path": "armino_as_lib/bk7239n/libs/libhttp.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/console/libconsole.a",
+        "path": "armino_as_lib/bk7239n/libs/libconsole.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_cli/libbk_cli.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_cli.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk7239n/libbk7239n.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk7239n.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/common/libcommon.a",
+        "path": "armino_as_lib/bk7239n/libs/libcommon.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_startup/libbk_startup.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_startup.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_event/libbk_event.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_event.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_common/libbk_common.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_common.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/at_server/libat_server.a",
+        "path": "armino_as_lib/bk7239n/libs/libat_server.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_persist_config/libbk_persist_config.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_persist_config.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_pm/libbk_pm.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_pm.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/compress/libcompress.a",
+        "path": "armino_as_lib/bk7239n/libs/libcompress.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/hmac_sha_256/libhmac_sha_256.a",
+        "path": "armino_as_lib/bk7239n/libs/libhmac_sha_256.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/qcbor/libqcbor.a",
+        "path": "armino_as_lib/bk7239n/libs/libqcbor.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/security/libsecurity.a",
+        "path": "armino_as_lib/bk7239n/libs/libsecurity.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/arduino-beken-main/libarduino-beken-main.a",
+        "path": "armino_as_lib/bk7239n/libs/libarduino-beken-main.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/arduino-beken-linker/libarduino-beken-linker.a",
+        "path": "armino_as_lib/bk7239n/libs/libarduino-beken-linker.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/BLE/libBLE.a",
+        "path": "arduino_lib/libBLE.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/WiFi/libWiFi.a",
+        "path": "arduino_lib/libWiFi.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/utf8/libutf8.a",
+        "path": "armino_as_lib/bk7239n/libs/libutf8.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/temp_detect/libtemp_detect.a",
+        "path": "armino_as_lib/bk7239n/libs/libtemp_detect.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_rtos/libbk_rtos.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_rtos.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/os_source/libos_source.a",
+        "path": "armino_as_lib/bk7239n/libs/libos_source.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/coredump/libcoredump.a",
+        "path": "armino_as_lib/bk7239n/libs/libcoredump.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/cmsis/libcmsis.a",
+        "path": "armino_as_lib/bk7239n/libs/libcmsis.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/cm33/libcm33.a",
+        "path": "armino_as_lib/bk7239n/libs/libcm33.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_log/libbk_log.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_log.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_bluetooth/libbk_bluetooth.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_bluetooth.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_phy/libbk_phy.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_phy.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_ate/libbk_ate.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_ate.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/base64/libbase64.a",
+        "path": "armino_as_lib/bk7239n/libs/libbase64.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/easy_flash/libeasy_flash.a",
+        "path": "armino_as_lib/bk7239n/libs/libeasy_flash.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/psa_mbedtls/libpsa_mbedtls.a",
+        "path": "armino_as_lib/bk7239n/libs/libpsa_mbedtls.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/driver/libdriver.a",
+        "path": "armino_as_lib/bk7239n/libs/libdriver.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/lwip_intf_v2_1/liblwip_intf_v2_1.a",
+        "path": "armino_as_lib/bk7239n/libs/liblwip_intf_v2_1.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_netif/libbk_netif.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_netif.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/wpa_supplicant-2.10/libwpa_supplicant-2.10.a",
+        "path": "armino_as_lib/bk7239n/libs/libwpa_supplicant-2.10.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_adapter/libbk_adapter.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_adapter.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/uart_debug/libuart_debug.a",
+        "path": "armino_as_lib/bk7239n/libs/libuart_debug.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_wifi/libbk_wifi.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_wifi.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_system/libbk_system.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_system.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/iperf/libiperf.a",
+        "path": "armino_as_lib/bk7239n/libs/libiperf.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/vnd_cal/libvnd_cal.a",
+        "path": "armino_as_lib/bk7239n/libs/libvnd_cal.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_init/libbk_init.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_init.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/ali_mqtt/libali_mqtt.a",
+        "path": "armino_as_lib/bk7239n/libs/libali_mqtt.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bt/libbt.a",
+        "path": "armino_as_lib/bk7239n/libs/libbt.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/at/libat.a",
+        "path": "armino_as_lib/bk7239n/libs/libat.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/ota/libota.a",
+        "path": "armino_as_lib/bk7239n/libs/libota.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/http/libhttp.a",
+        "path": "armino_as_lib/bk7239n/libs/libhttp.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/console/libconsole.a",
+        "path": "armino_as_lib/bk7239n/libs/libconsole.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_cli/libbk_cli.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_cli.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk7239n/libbk7239n.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk7239n.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/common/libcommon.a",
+        "path": "armino_as_lib/bk7239n/libs/libcommon.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_startup/libbk_startup.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_startup.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_event/libbk_event.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_event.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_common/libbk_common.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_common.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/utf8/libutf8.a",
+        "path": "armino_as_lib/bk7239n/libs/libutf8.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/temp_detect/libtemp_detect.a",
+        "path": "armino_as_lib/bk7239n/libs/libtemp_detect.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_rtos/libbk_rtos.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_rtos.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/os_source/libos_source.a",
+        "path": "armino_as_lib/bk7239n/libs/libos_source.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/coredump/libcoredump.a",
+        "path": "armino_as_lib/bk7239n/libs/libcoredump.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/cmsis/libcmsis.a",
+        "path": "armino_as_lib/bk7239n/libs/libcmsis.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/cm33/libcm33.a",
+        "path": "armino_as_lib/bk7239n/libs/libcm33.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_log/libbk_log.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_log.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_bluetooth/libbk_bluetooth.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_bluetooth.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_phy/libbk_phy.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_phy.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_ate/libbk_ate.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_ate.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/base64/libbase64.a",
+        "path": "armino_as_lib/bk7239n/libs/libbase64.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/easy_flash/libeasy_flash.a",
+        "path": "armino_as_lib/bk7239n/libs/libeasy_flash.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/psa_mbedtls/libpsa_mbedtls.a",
+        "path": "armino_as_lib/bk7239n/libs/libpsa_mbedtls.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/driver/libdriver.a",
+        "path": "armino_as_lib/bk7239n/libs/libdriver.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/lwip_intf_v2_1/liblwip_intf_v2_1.a",
+        "path": "armino_as_lib/bk7239n/libs/liblwip_intf_v2_1.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_netif/libbk_netif.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_netif.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/wpa_supplicant-2.10/libwpa_supplicant-2.10.a",
+        "path": "armino_as_lib/bk7239n/libs/libwpa_supplicant-2.10.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_adapter/libbk_adapter.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_adapter.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/uart_debug/libuart_debug.a",
+        "path": "armino_as_lib/bk7239n/libs/libuart_debug.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_wifi/libbk_wifi.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_wifi.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_system/libbk_system.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_system.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/iperf/libiperf.a",
+        "path": "armino_as_lib/bk7239n/libs/libiperf.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/vnd_cal/libvnd_cal.a",
+        "path": "armino_as_lib/bk7239n/libs/libvnd_cal.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_init/libbk_init.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_init.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/ali_mqtt/libali_mqtt.a",
+        "path": "armino_as_lib/bk7239n/libs/libali_mqtt.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bt/libbt.a",
+        "path": "armino_as_lib/bk7239n/libs/libbt.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/at/libat.a",
+        "path": "armino_as_lib/bk7239n/libs/libat.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/ota/libota.a",
+        "path": "armino_as_lib/bk7239n/libs/libota.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/http/libhttp.a",
+        "path": "armino_as_lib/bk7239n/libs/libhttp.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/console/libconsole.a",
+        "path": "armino_as_lib/bk7239n/libs/libconsole.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_cli/libbk_cli.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_cli.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk7239n/libbk7239n.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk7239n.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/common/libcommon.a",
+        "path": "armino_as_lib/bk7239n/libs/libcommon.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_startup/libbk_startup.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_startup.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_event/libbk_event.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_event.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk_common/libbk_common.a",
+        "path": "armino_as_lib/bk7239n/libs/libbk_common.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbluetooth_host_ble.a",
+        "path": "bk_libs/libbluetooth_host_ble.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbluetooth_controller_ble.a",
+        "path": "bk_libs/libbluetooth_controller_ble.a"
+      },
+      {
+        "source": "../../../../bk_idk/components/bk_libs/bk7239n/libs/libdpd_phy.a",
+        "path": "bk_libs/libdpd_phy.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbk_phy_info.a",
+        "path": "bk_libs/libbk_phy_info.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libwifi.a",
+        "path": "bk_libs/libwifi.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbk_coex.a",
+        "path": "bk_libs/libbk_coex.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libble_wifi_exchange.a",
+        "path": "bk_libs/libble_wifi_exchange.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libcoexistence.a",
+        "path": "bk_libs/libcoexistence.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libmac802154.a",
+        "path": "bk_libs/libmac802154.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libproduct.a",
+        "path": "bk_libs/libproduct.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libuid.a",
+        "path": "bk_libs/libuid.a"
+      },
+      {
+        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libusb.a",
+        "path": "bk_libs/libusb.a"
+      }
+    ],
+    "ld": [
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/bk7239n/bk7239n_out.ld",
+        "path": "ld/bk7239n_out.ld"
+      }
+    ],
+    "armino_as_lib": "armino_as_lib",
+    "arduino_lib": "arduino_lib"
+  },
+  "sources": {
+    "compile_commands": "../../../build/bk7239n/arduino/bk7239n/compile_commands.json",
+    "build_ninja": "../../../build/bk7239n/arduino/bk7239n/build.ninja"
+  }
+}

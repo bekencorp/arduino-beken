@@ -1,0 +1,70 @@
+{
+    "crc_enable": true,
+    "aes_enable": false,
+    "aes_key": "",
+    "section": [
+        {
+            "Id": 0,
+            "Name": "primary_bootloader",
+            "Offset": 0,
+            "Size": 69632,
+            "Execute": true,
+            "Read": true,
+            "Write": false
+        },
+        {
+            "Id": 1,
+            "Name": "primary_cpu0_app",
+            "Offset": 69632,
+            "Size": 2367488,
+            "Execute": true,
+            "Read": true,
+            "Write": false
+        },
+        {
+            "Id": 6,
+            "Name": "ota",
+            "Offset": 2437120,
+            "Size": 1601536,
+            "Execute": false,
+            "Read": true,
+            "Write": true
+        },
+        {
+            "Id": 7,
+            "Name": "usr_config",
+            "Offset": 4038656,
+            "Size": 139264,
+            "Execute": false,
+            "Read": true,
+            "Write": true
+        },
+        {
+            "Id": 8,
+            "Name": "easyflash",
+            "Offset": 4177920,
+            "Size": 8192,
+            "Execute": false,
+            "Read": true,
+            "Write": true
+        },
+        {
+            "Id": 4,
+            "Name": "sys_rf",
+            "Offset": 4186112,
+            "Size": 4096,
+            "Execute": false,
+            "Read": true,
+            "Write": true
+        },
+        {
+            "Id": 5,
+            "Name": "sys_net",
+            "Offset": 4190208,
+            "Size": 4096,
+            "Execute": false,
+            "Read": true,
+            "Write": true
+        }
+    ]
+}

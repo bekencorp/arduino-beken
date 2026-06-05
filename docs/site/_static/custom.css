@@ -1,0 +1,74 @@
+/* Custom CSS to increase font sizes */
+
+/* Increase body text font size */
+body {
+    font-size: 16px !important;
+}
+
+/* Increase paragraph font size */
+p {
+    font-size: 16px !important;
+}
+
+/* Increase heading font sizes */
+h1 {
+    font-size: 2em !important;
+}
+
+h2 {
+    font-size: 1.75em !important;
+}
+
+h3 {
+    font-size: 1.5em !important;
+}
+
+h4 {
+    font-size: 1.25em !important;
+}
+
+/* Increase table font size */
+table {
+    font-size: 15px !important;
+}
+
+th, td {
+    font-size: 15px !important;
+    padding: 8px !important;
+}
+
+/* Increase code block font size */
+pre {
+    font-size: 14px !important;
+}
+
+code {
+    font-size: 14px !important;
+}
+
+/* Increase inline code font size */
+.rst-content code, .rst-content tt {
+    font-size: 14px !important;
+}
+
+/* Increase sidebar and navigation font sizes */
+.wy-nav-side, .wy-menu-vertical {
+    font-size: 15px !important;
+}
+
+.wy-nav-content {
+    font-size: 16px !important;
+}
+
+/* Increase nav-tree font size */
+.wy-menu-vertical li.toctree-l1 > a {
+    font-size: 15px !important;
+}
+
+.wy-menu-vertical li.toctree-l2 > a {
+    font-size: 14px !important;
+}
+
+.wy-menu-vertical li.toctree-l3 > a {
+    font-size: 13px !important;
+}
