@@ -1,7 +1,13 @@
 set(srcs
     src/WiFi.cpp
+    src/WiFiAP.cpp
+    src/WiFiBkIdk.cpp
     src/WiFiClient.cpp
+    src/WiFiGeneric.cpp
+    src/WiFiMulti.cpp
+    src/WiFiScan.cpp
     src/WiFiServer.cpp
+    src/WiFiSTA.cpp
     src/WiFiUdp.cpp
 )
 
@@ -13,7 +19,7 @@ endif()
 armino_component_register(
     SRCS "${srcs}"
     INCLUDE_DIRS src
-    REQUIRES arduino-beken-core bk_wifi bk_event
+    REQUIRES arduino-beken-core bk_wifi bk_event bk_netif lwip_intf_v2_1
     PRIV_REQUIRES bk_common bk_rtos
 )
 

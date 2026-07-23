@@ -1,64 +1,46 @@
-/*
-  WiFiClient.cpp - Library for Arduino WiFi shield.
-  Copyright (c) 2011-2014 Arduino LLC.  All right reserved.
+﻿#ifndef WiFiClient_h
+#define WiFiClient_h
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-#ifndef wificlient_h
-#define wificlient_h
-
-extern "C" {
-#include "utility/wl_definitions.h"
-}
-
-#include "Arduino.h"
-#include "Print.h"
-#include "Client.h"
-#include "IPAddress.h"
+#include <Arduino.h>
+#include "api/Client.h"
 
 class WiFiClient : public arduino::Client {
-
 public:
   WiFiClient();
-  WiFiClient(uint8_t sock);
+  explicit WiFiClient(int fd);
+  virtual ~WiFiClient();
 
-  uint8_t status();
-  virtual int connect(IPAddress ip, uint16_t port);
-  virtual int connect(const char *host, uint16_t port);
-  virtual size_t write(uint8_t);
-  virtual size_t write(const uint8_t *buf, size_t size);
-  virtual int available();
-  virtual int read();
-  virtual int read(uint8_t *buf, size_t size);
-  virtual int peek();
-  virtual void flush();
-  virtual void stop();
-  virtual uint8_t connected();
-  virtual operator bool();
+  int connect(IPAddress ip, uint16_t port) override;
+  virtual int connect(IPAddress ip, uint16_t port, int32_t timeout_ms);
+  int connect(const char *host, uint16_t port) override;
+  virtual int connect(const char *host, uint16_t port, int32_t timeout_ms);
 
-  friend class WiFiServer;
+  size_t write(uint8_t data) override;
+  size_t write(const uint8_t *buf, size_t size) override;
+  int available() override;
+  int read() override;
+  int read(uint8_t *buf, size_t size) override;
+  int peek() override;
+  void flush() override;
+  void stop() override;
+  uint8_t connected() override;
+  operator bool() override;
 
-  using Print::write;
+  int fd() const;
+  int setTimeout(uint32_t ms);
 
-private:
-  static uint16_t _srcport;
-  uint8_t _sock;   //not used
-  uint16_t  _socket;
+  IPAddress remoteIP() const;
+  uint16_t remotePort() const;
+  IPAddress localIP() const;
+  uint16_t localPort() const;
 
-  uint8_t getFirstSocket();
+protected:
+  bool applyTimeout(int32_t timeout_ms);
+  bool fillEndpoint(int fd, IPAddress &ip, uint16_t &port, bool peer) const;
+
+  int _fd = -1;
+  bool _connected = false;
+  uint32_t _timeout_ms = 3000;
 };
 
 #endif

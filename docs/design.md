@@ -105,8 +105,10 @@ The release flow directly consumes the staged platform:
 ### Variant
 `VARIANT` optionally overrides the selected board variant for make-driven builds. If it is not provided, the default preference order is:
 
-1. `variants/<target>_generic`
+1. `variants/<target>` or `variants/<target>_generic` (the `_generic` suffix sorts first)
 2. Other `variants/<target>_*`
+
+The current `bk7239n` uses `variants/bk7239n` (the board id is `bk7239n`, i.e. FQBN `beken:bk7239n:bk7239n`).
 
 Variant resolution is centralized in `cmake/arduino_variant.cmake`. In most cases, adding a new target does not require changing that file.
 
@@ -156,8 +158,8 @@ These files drive:
 4. Optional Arduino `Partition Scheme` menu entries.
 5. Packaging and OTA partition metadata.
 
-### 3. Add `variants/<target>_generic`
-At least one generic variant is required:
+### 3. Add `variants/<target>`
+At least one default variant is required (the directory name becomes the board id; a `_generic` suffix is also supported):
 
 1. `variants/<target>/pins_arduino.h`
 2. Any other board-level definition files needed by that variant

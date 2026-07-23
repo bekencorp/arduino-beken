@@ -159,6 +159,33 @@ typedef enum {
 #endif
 
 /**
+ * @brief Wi-Fi scan policy.
+ *
+ * @WIFI_FAST_SCAN Abort scan once the target SSID is found.
+ * @WIFI_ALL_CHANNEL_SCAN Scan all requested channels even after the target SSID is found.
+ */
+typedef enum {
+	WIFI_FAST_SCAN = 0,
+	WIFI_ALL_CHANNEL_SCAN = 1,
+} wifi_scan_policy_t;
+
+#if CONFIG_WIFI_STA_SAME_SSID_BAND_PREF
+/**
+ * @brief STA policy when the same SSID is seen on 2.4 GHz and 5 GHz.
+ *
+ * @WIFI_STA_SAME_SSID_PREF_STRONGER_SIGNAL Prefer the BSS with better RF
+ *     metric (SNR when valid for both, else RSSI) among matching BSSes.
+ * @WIFI_STA_SAME_SSID_PREF_5GHZ If any matching 5 GHz BSS exists, always
+ *     select the best 5 GHz candidate; do not fall back to 2.4 GHz for
+ *     stronger signal alone.
+ */
+typedef enum {
+	WIFI_STA_SAME_SSID_PREF_STRONGER_SIGNAL = 0,
+	WIFI_STA_SAME_SSID_PREF_5GHZ = 1,
+} wifi_sta_same_ssid_band_pref_t;
+#endif
+
+/**
  * @brief WiFi public event type
  */
 typedef enum {
@@ -537,6 +564,7 @@ enum {
 
 typedef struct {
 	char ssid[WIFI_SSID_STR_LEN];     /**< SSID to be scaned */
+	uint8_t bssid[WIFI_BSSID_LEN];     /**< BSSID to be scaned */
 	u8 scan_type;     /**< 0: active scan; 1: passive scan*/
 	u8 chan_cnt;     /**< scan channel cnt*/
 	u8 flag;

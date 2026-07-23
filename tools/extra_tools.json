@@ -1,0 +1,22 @@
+{
+  "tools": [
+    {
+      "name": "env-python",
+      "version": "3.12.4",
+      "systems": {
+        "x86_64-linux-gnu": {
+          "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/env-python-linux_3.12.4.zip",
+          "archiveFileName": "env-python-linux_3.12.4.zip",
+          "checksum": "SHA-256:7b5ed51935d471659663d456a3c72b746673c6e1225de0bf8e88245e55eff502",
+          "size": "428"
+        },
+        "x86_64-mingw32": {
+          "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/env-python-win_3.12.4.zip",
+          "archiveFileName": "env-python-win_3.12.4.zip",
+          "checksum": "SHA-256:a9bd1bd75fee12e90f3ceca63f090c303c5a96fbdbf4d6d6d5341ca0a16130db",
+          "size": "29231288"
+        }
+      }
+    }
+  ]
+}

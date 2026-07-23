@@ -107,6 +107,42 @@ def generate_function_prototypes(source: str) -> str:
     return "\n".join(unique)
 
 
+def insert_prototypes_after_includes(source: str, prototypes: str) -> str:
+    """Insert prototypes after leading comments/preprocessor lines (Arduino IDE style)."""
+    if not prototypes:
+        return source
+
+    lines = source.splitlines(keepends=True)
+    insert_at = 0
+    in_block_comment = False
+
+    for idx, raw_line in enumerate(lines):
+        line = raw_line.strip()
+
+        if in_block_comment:
+            if "*/" in line:
+                in_block_comment = False
+            insert_at = idx + 1
+            continue
+
+        if not line:
+            insert_at = idx + 1
+            continue
+        if line.startswith("//"):
+            insert_at = idx + 1
+            continue
+        if line.startswith("/*"):
+            in_block_comment = "*/" not in line
+            insert_at = idx + 1
+            continue
+        if line.startswith("#"):
+            insert_at = idx + 1
+            continue
+        break
+
+    return "".join(lines[:insert_at]) + prototypes + "\n\n" + "".join(lines[insert_at:])
+
+
 def write_extra_source(output_path: Path | None, sources: list[Path]) -> None:
     if output_path is None:
         return
@@ -134,7 +170,7 @@ def prepare_sketch(
     body_parts: list[str] = []
 
     if is_ino_sketch:
-        prefix = '#include <Arduino.h>\n\n' + prefix
+        prefix = '#include <Arduino.h>\n\n'
 
     for source_path in sketch_sources:
         body_parts.append(f"// Source: {source_path.name}\n")
@@ -145,7 +181,7 @@ def prepare_sketch(
     if is_ino_sketch:
         prototypes = generate_function_prototypes(body)
         if prototypes:
-            prefix += prototypes + "\n\n"
+            body = insert_prototypes_after_includes(body, prototypes)
 
     output_path.write_text(prefix + body, encoding="utf-8")
     return output_path

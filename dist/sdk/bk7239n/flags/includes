@@ -1,2 +1,13 @@
+-I{compiler.sdk.path}/include/sdk/components/psa_mbedtls/mbedtls_port/configs
+-I{compiler.sdk.path}/include/sdk/components/psa_mbedtls/mbedtls_port/inc
+-I{compiler.sdk.path}/include/sdk/components/psa_mbedtls/mbedtls_port/mbedtls/include
+-I{compiler.sdk.path}/include/sdk/components/psa_mbedtls/mbedtls_ui
+-I{compiler.sdk.path}/include/sdk/components/psa_mbedtls/mbedtls/include
+-I{compiler.sdk.path}/include/sdk/components/os_source/freertos_v10/include
+-I{compiler.sdk.path}/include/sdk/components/os_source/freertos_v10/portable/GCC/ARM_CM33_NTZ/non_secure
+-I{compiler.sdk.path}/include/sdk/components/bk_rtos/freertos
+-I{compiler.sdk.path}/include/sdk/components/bk_rtos/include
+-I{compiler.sdk.path}/include/sdk/components/bk_startup/freertos
+-I{compiler.sdk.path}/include/sdk/middleware/arch/cm33/os/freertos
 -I{compiler.sdk.path}/armino_as_lib/include
 -I{compiler.sdk.path}/include/generated

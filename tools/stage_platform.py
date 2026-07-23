@@ -87,13 +87,20 @@ def main() -> int:
         if uploader_root is not None:
             if not uploader_root.exists():
                 raise SystemExit(f"CLI uploader root not found: {uploader_root}")
-            rewrite_platform_txt(
-                cli_platform_dir / "platform.txt",
-                args.version,
-                args.target,
-                uploader_root=uploader_root,
-                uploader_os=uploader_os,
-            )
+
+        # Local CLI tests do not install Boards Manager tools (env-python / bk_uploader).
+        # Keep the release platform.txt for packaging, but override paths for compile/upload.
+        cli_overrides: dict[str, str] = {
+            "tools.python.cmd.linux=": "python3",
+        }
+        rewrite_platform_txt(
+            cli_platform_dir / "platform.txt",
+            args.version,
+            args.target,
+            uploader_root=uploader_root,
+            uploader_os=uploader_os,
+            line_overrides=cli_overrides,
+        )
 
         print(f"Staged CLI platform: {cli_platform_dir}")
 

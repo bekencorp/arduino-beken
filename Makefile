@@ -20,6 +20,7 @@ DIST_DIR ?= $(PROJECT_ROOT)/dist
 SDK_EXPORT_DIR ?= $(DIST_DIR)/sdk/$(TARGET)
 RELEASE_DIR ?= $(DIST_DIR)/release/$(TARGET)
 RELEASE_CHECK_DIR ?= $(DIST_DIR)/release-check/$(TARGET)
+PACKAGE_JSON_DIR ?= $(DIST_DIR)/package_json
 PLATFORM_STAGE_DIR ?= $(BUILD_DIR)/platform/$(TARGET)/arduino-beken
 CLI_PLATFORM_STAGE_DIR ?= $(BUILD_DIR)/platform-cli/$(TARGET)/arduino-beken
 CLI_HARDWARE_LINK ?= $(PROJECT_ROOT)/.arduino-cli-test/user/hardware/beken/$(TARGET)
@@ -27,6 +28,8 @@ CLI_HARDWARE_LINK ?= $(PROJECT_ROOT)/.arduino-cli-test/user/hardware/beken/$(TAR
 UPLOADER_ROOT ?= $(PROJECT_ROOT)/tools/bk_loader
 UPLOADER_LINUX_ROOT ?= $(UPLOADER_ROOT)/linux
 UPLOADER_WIN_ROOT ?= $(UPLOADER_ROOT)/windows
+UPLOADER_MANIFEST ?= $(PROJECT_ROOT)/tools/uploaders.json
+EXTRA_TOOLS_MANIFEST ?= $(PROJECT_ROOT)/tools/extra_tools.json
 TOOLCHAIN_MANIFEST ?= $(PROJECT_ROOT)/tools/toolchains.json
 TOOLCHAIN_LINUX_ROOT ?=
 TOOLCHAIN_LINUX_URL ?=
@@ -51,9 +54,9 @@ TOOLCHAIN_MACOS_ARM64_SIZE ?=
 
 CLI_CONFIG ?= $(PROJECT_ROOT)/.arduino-cli.yaml
 CLI_SKETCH ?= $(PROJECT_ROOT)/libraries/Blink/examples/Blink
-CLI_FQBN ?= beken:$(TARGET):$(TARGET)_generic
+CLI_FQBN ?= beken:$(TARGET):$(TARGET)
 CLI_BUILD_PATH ?= $(PROJECT_ROOT)/.arduino-cli-test/build-$(TARGET)-$(notdir $(basename $(CLI_SKETCH)))
-CLI_COMPILER_PATH ?= /opt/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin/
+CLI_COMPILER_PATH ?= /opt/gcc-arm-none-eabi-10.3-2021.10/bin/
 CLI_PORT ?=
 CLI_COMPILE_EXTRA_ARGS ?=
 CLI_UPLOAD_EXTRA_ARGS ?=
@@ -150,6 +153,10 @@ prepare-sketch:
 		--output "$(GENERATED_SKETCH)" \
 		--extra-c-output "$(GENERATED_SKETCH_EXTRA_C)" \
 		--extra-cpp-output "$(GENERATED_SKETCH_EXTRA_CPP)"
+	@# GeneratedSketch.cpp #includes build/generated/sketch.cpp via __has_include.
+	@# CMake/Ninja does not track that dependency, so touch the TU after sketch prep
+	@# to force recompile; otherwise the link keeps SketchDefaults' empty weak setup()/loop().
+	@touch "$(PROJECT_ROOT)/components/arduino-beken-core/src/GeneratedSketch.cpp"
 
 build: prepare-platform prepare-sketch
 	@echo "========================================"
@@ -260,7 +267,12 @@ endif
 		--toolchain-macos-arm64-url "$(TOOLCHAIN_MACOS_ARM64_URL)" \
 		--toolchain-macos-arm64-archive-name "$(TOOLCHAIN_MACOS_ARM64_ARCHIVE_NAME)" \
 		--toolchain-macos-arm64-checksum "$(TOOLCHAIN_MACOS_ARM64_CHECKSUM)" \
-		--toolchain-macos-arm64-size "$(TOOLCHAIN_MACOS_ARM64_SIZE)"
+		--toolchain-macos-arm64-size "$(TOOLCHAIN_MACOS_ARM64_SIZE)" \
+		--uploader-manifest "$(UPLOADER_MANIFEST)" \
+		--uploader-linux-root "$(UPLOADER_LINUX_ROOT)" \
+		--uploader-win-root "$(UPLOADER_WIN_ROOT)" \
+		--extra-tools-manifest "$(EXTRA_TOOLS_MANIFEST)" \
+		--package-json-archive-dir "$(PACKAGE_JSON_DIR)"
 
 release-check: export-sdk
 	@mkdir -p "$(RELEASE_CHECK_DIR)"
@@ -292,11 +304,15 @@ release-check: export-sdk
 		--toolchain-macos-arm64-archive-name "$(TOOLCHAIN_MACOS_ARM64_ARCHIVE_NAME)" \
 		--toolchain-macos-arm64-checksum "$(TOOLCHAIN_MACOS_ARM64_CHECKSUM)" \
 		--toolchain-macos-arm64-size "$(TOOLCHAIN_MACOS_ARM64_SIZE)" \
+		--uploader-manifest "$(UPLOADER_MANIFEST)" \
+		--uploader-linux-root "$(UPLOADER_LINUX_ROOT)" \
+		--uploader-win-root "$(UPLOADER_WIN_ROOT)" \
+		--extra-tools-manifest "$(EXTRA_TOOLS_MANIFEST)" \
 		--lightweight
 
 docs-html:
 	@rm -rf "$(PROJECT_ROOT)/build/docs/html"
-	@DOCS_LANGUAGE=en "$(DOCS_SPHINX_BUILD)" -c "$(PROJECT_ROOT)/docs/site" -b html "$(PROJECT_ROOT)/docs/site" "$(PROJECT_ROOT)/build/docs/html"
+	@DOCS_LANGUAGE=en "$(DOCS_SPHINX_BUILD)" -c "$(PROJECT_ROOT)/docs/site" -b html "$(PROJECT_ROOT)/docs/site/en" "$(PROJECT_ROOT)/build/docs/html/en"
 	@DOCS_LANGUAGE=zh_CN "$(DOCS_SPHINX_BUILD)" -c "$(PROJECT_ROOT)/docs/site" -b html "$(PROJECT_ROOT)/docs/site/zh_CN" "$(PROJECT_ROOT)/build/docs/html/zh_CN"
 
 docs-install:
@@ -308,3 +324,5 @@ docs-clean:
 
 clean:
 	rm -rf "$(BUILD_DIR)"
+	rm -rf "$(DIST_DIR)/sdk" "$(DIST_DIR)/release" "$(DIST_DIR)/release-check"
+	@echo "Cleaned $(BUILD_DIR) and $(DIST_DIR)/{sdk,release,release-check}/"

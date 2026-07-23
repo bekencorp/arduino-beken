@@ -48,10 +48,14 @@ def rewrite_platform_txt(
     target: str,
     uploader_root: Path | None = None,
     uploader_os: str = "linux",
+    line_overrides: dict[str, str] | None = None,
 ) -> None:
     tool_name = sdk_tool_name(target)
     tool_pattern = re.compile(r"arduino-beken-sdk(?:-[A-Za-z0-9_]+)?")
     uploader_path_key = f"tools.bk-uploader.path.{uploader_os}="
+    overrides = dict(line_overrides or {})
+    if uploader_root is not None:
+        overrides[uploader_path_key] = str(uploader_root)
     lines = platform_txt.read_text(encoding="utf-8").splitlines()
     platform_txt.write_text(
         "\n".join(
@@ -60,9 +64,10 @@ def rewrite_platform_txt(
                 if line.startswith("name=")
                 else f"version={version}"
                 if line.startswith("version=")
-                else f"{uploader_path_key}{uploader_root}"
-                if uploader_root is not None and line.startswith(uploader_path_key)
-                else tool_pattern.sub(tool_name, line)
+                else next(
+                    (f"{prefix}{value}" for prefix, value in overrides.items() if line.startswith(prefix)),
+                    tool_pattern.sub(tool_name, line),
+                )
             )
             for line in lines
         )

@@ -1,0 +1,148 @@
+{
+  "packages": [
+    {
+      "name": "beken",
+      "maintainer": "Beken",
+      "websiteURL": "https://github.com/bekencorp/bk_idk",
+      "email": "support@example.com",
+      "help": {
+        "online": "https://github.com/bekencorp/bk_idk"
+      },
+      "platforms": [
+        {
+          "name": "Arduino Beken BK7239N",
+          "architecture": "bk7239n",
+          "version": "1.0.1",
+          "category": "Beken",
+          "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/arduino-beken-bk7239n-1.0.1.tar.gz",
+          "archiveFileName": "arduino-beken-bk7239n-1.0.1.tar.gz",
+          "checksum": "SHA-256:73db768d1d449f7690d76691b7bce85b6ba50f45d1d2750b5d007061dd2ec6ea",
+          "size": "132464",
+          "boards": [
+            {
+              "name": "BK7239N"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "beken",
+              "name": "arduino-beken-sdk-bk7239n",
+              "version": "1.0.1"
+            },
+            {
+              "packager": "beken",
+              "name": "arm-none-eabi-gcc",
+              "version": "10.3-2021.10"
+            },
+            {
+              "packager": "beken",
+              "name": "bk_uploader",
+              "version": "4.1.3.260708"
+            },
+            {
+              "packager": "beken",
+              "name": "env-python",
+              "version": "3.12.4"
+            }
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "name": "arduino-beken-sdk-bk7239n",
+          "version": "1.0.1",
+          "systems": [
+            {
+              "host": "x86_64-linux-gnu",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "archiveFileName": "arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "checksum": "SHA-256:81bc49928320025acb7e32074a19c51e6ad51e0712278e95dd9ce495fafb7da7",
+              "size": "68657449"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "archiveFileName": "arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "checksum": "SHA-256:81bc49928320025acb7e32074a19c51e6ad51e0712278e95dd9ce495fafb7da7",
+              "size": "68657449"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "archiveFileName": "arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "checksum": "SHA-256:81bc49928320025acb7e32074a19c51e6ad51e0712278e95dd9ce495fafb7da7",
+              "size": "68657449"
+            },
+            {
+              "host": "arm64-apple-darwin",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "archiveFileName": "arduino-beken-sdk-bk7239n-1.0.1.tar.gz",
+              "checksum": "SHA-256:81bc49928320025acb7e32074a19c51e6ad51e0712278e95dd9ce495fafb7da7",
+              "size": "68657449"
+            }
+          ]
+        },
+        {
+          "name": "arm-none-eabi-gcc",
+          "version": "10.3-2021.10",
+          "systems": [
+            {
+              "host": "x86_64-linux-gnu",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2",
+              "archiveFileName": "gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2",
+              "checksum": "SHA-256:97dbb4f019ad1650b732faffcc881689cedc14e2b7ee863d390e0a41ef16c9a3",
+              "size": "157089706"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/gcc-arm-none-eabi-10.3-2021.10-win32.zip",
+              "archiveFileName": "gcc-arm-none-eabi-10.3-2021.10-win32.zip",
+              "checksum": "SHA-256:d287439b3090843f3f4e29c7c41f81d958a5323aecefcf705c203bfd8ae3f2e7",
+              "size": "200578763"
+            }
+          ]
+        },
+        {
+          "name": "bk_uploader",
+          "version": "4.1.3.260708",
+          "systems": [
+            {
+              "host": "x86_64-linux-gnu",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/bk_loader_linux_4.1.3.260708168.zip",
+              "archiveFileName": "bk_loader_linux_4.1.3.260708168.zip",
+              "checksum": "SHA-256:0eaa470ac52cf631c04d0ab5d672b60c78d904a7c0e4e94f917ac6a182493610",
+              "size": "12438776"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/bk_loader_windows_4.1.3.260708168.zip",
+              "archiveFileName": "bk_loader_windows_4.1.3.260708168.zip",
+              "checksum": "SHA-256:55d325875d1b8d066a5e40be7f39670eea44e92a422171899f3c8ca31b8d3024",
+              "size": "9787778"
+            }
+          ]
+        },
+        {
+          "name": "env-python",
+          "version": "3.12.4",
+          "systems": [
+            {
+              "host": "x86_64-linux-gnu",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/env-python-linux_3.12.4.zip",
+              "archiveFileName": "env-python-linux_3.12.4.zip",
+              "checksum": "SHA-256:7b5ed51935d471659663d456a3c72b746673c6e1225de0bf8e88245e55eff502",
+              "size": "428"
+            },
+            {
+              "host": "x86_64-mingw32",
+              "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/env-python-win_3.12.4.zip",
+              "archiveFileName": "env-python-win_3.12.4.zip",
+              "checksum": "SHA-256:a9bd1bd75fee12e90f3ceca63f090c303c5a96fbdbf4d6d6d5341ca0a16130db",
+              "size": "29231288"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

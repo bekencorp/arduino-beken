@@ -19,6 +19,11 @@ set(EXTRA_COMPONENTS_DIRS
     "components/arduino-beken-linker"
     "libraries/BLE"
     "libraries/WiFi"
+    "libraries/WiFiClientSecure"
+    "libraries/HTTPClient"
+    "libraries/PubSubClient"
+    "libraries/DNSServer"
+    "libraries/Websocket"
 )
 
 include($ENV{ARMINO_PATH}/tools/build_tools/cmake/project.cmake)
