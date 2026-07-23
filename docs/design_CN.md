@@ -105,8 +105,10 @@
 ### variant
 `VARIANT` 用于 make 驱动构建时显式指定某个变体目录。若未指定，则默认优先选中：
 
-1. `variants/<target>_generic`
+1. `variants/<target>` 或 `variants/<target>_generic`（`_generic` 后缀排序靠前）
 2. 其他 `variants/<target>_*`
+
+当前 `bk7239n` 使用的是 `variants/bk7239n`（board id 即 `bk7239n`，对应 FQBN `beken:bk7239n:bk7239n`）。
 
 variant 解析逻辑集中在 `cmake/arduino_variant.cmake`，一般新增 target 时无需改动该文件。
 
@@ -156,8 +158,8 @@ make -C /path/to/bk_idk <target> PROJECT_DIR=/path/to/arduino-beken BUILD_DIR=/t
 4. 可选的 Arduino `Partition Scheme` 菜单项。
 5. 打包与 OTA 分区相关产物。
 
-### 3. 新增 `variants/<target>_generic`
-至少提供一个 generic variant：
+### 3. 新增 `variants/<target>`
+至少提供一个默认 variant（目录名即 board id；如需可用 `_generic` 后缀）：
 
 1. `variants/<target>/pins_arduino.h`
 2. 如有需要，补充该 variant 的其他板级定义文件。

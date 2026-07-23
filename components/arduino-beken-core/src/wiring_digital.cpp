@@ -28,6 +28,11 @@ struct InterruptCallback {
 };
 
 InterruptCallback s_interruptCallbacks[SOC_GPIO_NUM] = {0};
+PinMode s_pinModes[SOC_GPIO_NUM] = {INPUT};
+
+gpio_id_t to_gpio(uint8_t pin) {
+    return static_cast<gpio_id_t>(pin);
+}
 
 gpio_int_type_t arduinoPinStatusToGpioIntType(PinStatus mode) {
     switch (mode) {
@@ -43,6 +48,27 @@ gpio_int_type_t arduinoPinStatusToGpioIntType(PinStatus mode) {
             return GPIO_INT_TYPE_FALLING_EDGE;
         default:
             return GPIO_INT_TYPE_FALLING_EDGE;
+    }
+}
+
+// Keep pull configuration from pinMode(); attachInterrupt used to drop it and leave the pad floating.
+void configureInterruptPinInput(gpio_id_t gpio, pin_size_t pin) {
+    gpio_dev_unmap(gpio);
+    bk_gpio_disable_output(gpio);
+    bk_gpio_enable_input(gpio);
+    bk_gpio_disable_pull(gpio);
+
+    switch (s_pinModes[pin]) {
+        case INPUT_PULLUP:
+            bk_gpio_enable_pull(gpio);
+            bk_gpio_pull_up(gpio);
+            break;
+        case INPUT_PULLDOWN:
+            bk_gpio_enable_pull(gpio);
+            bk_gpio_pull_down(gpio);
+            break;
+        default:
+            break;
     }
 }
 
@@ -68,16 +94,33 @@ void gpio_isr_handler(gpio_id_t gpio_id) {
         bk_gpio_enable_interrupt(gpio_id);
     }
 }
-}
 
-namespace {
-gpio_id_t to_gpio(uint8_t pin) {
-    return static_cast<gpio_id_t>(pin);
+void enableGpioInterrupt(pin_size_t pin, PinStatus mode) {
+    gpio_id_t gpio = to_gpio(pin);
+    configureInterruptPinInput(gpio, pin);
+
+    gpio_int_type_t intType = arduinoPinStatusToGpioIntType(mode);
+    if (mode == CHANGE) {
+        bool currentLevel = bk_gpio_get_input(gpio);
+        intType = currentLevel ? GPIO_INT_TYPE_FALLING_EDGE : GPIO_INT_TYPE_RISING_EDGE;
+    }
+
+    s_interruptCallbacks[pin].mode = mode;
+    s_interruptCallbacks[pin].currentIntType = intType;
+
+    bk_gpio_disable_interrupt(gpio);
+    bk_gpio_clear_interrupt(gpio);
+    bk_gpio_set_interrupt_type(gpio, intType);
+    bk_gpio_register_isr(gpio, gpio_isr_handler);
+    bk_gpio_enable_interrupt(gpio);
 }
 }
 
 void pinMode(uint8_t pin, PinMode mode) {
     const gpio_id_t gpio = to_gpio(pin);
+    if (pin < SOC_GPIO_NUM) {
+        s_pinModes[pin] = mode;
+    }
 
     // BK7236 GPIOs can stay mapped to a peripheral function by default.
     // Switch the pad back to plain GPIO before changing direction.
@@ -125,64 +168,24 @@ void attachInterrupt(pin_size_t interruptNumber, voidFuncPtr callback, PinStatus
     if (interruptNumber >= SOC_GPIO_NUM) {
         return;
     }
-    
-    gpio_id_t gpio = to_gpio(interruptNumber);
-    
-    gpio_dev_unmap(gpio);
-    bk_gpio_disable_output(gpio);
-    bk_gpio_enable_input(gpio);
-    
-    gpio_int_type_t intType = arduinoPinStatusToGpioIntType(mode);
-    
-    if (mode == CHANGE) {
-        bool currentLevel = bk_gpio_get_input(gpio);
-        intType = currentLevel ? GPIO_INT_TYPE_FALLING_EDGE : GPIO_INT_TYPE_RISING_EDGE;
-    }
-    
+
     s_interruptCallbacks[interruptNumber].callback = callback;
     s_interruptCallbacks[interruptNumber].callbackParam = nullptr;
     s_interruptCallbacks[interruptNumber].param = nullptr;
     s_interruptCallbacks[interruptNumber].hasParam = false;
-    s_interruptCallbacks[interruptNumber].mode = mode;
-    s_interruptCallbacks[interruptNumber].currentIntType = intType;
-    
-    bk_gpio_disable_interrupt(gpio);
-    bk_gpio_clear_interrupt(gpio);
-    bk_gpio_set_interrupt_type(gpio, intType);
-    bk_gpio_register_isr(gpio, gpio_isr_handler);
-    bk_gpio_enable_interrupt(gpio);
+    enableGpioInterrupt(interruptNumber, mode);
 }
 
 void attachInterruptParam(pin_size_t interruptNumber, voidFuncPtrParam callback, PinStatus mode, void* param) {
     if (interruptNumber >= SOC_GPIO_NUM) {
         return;
     }
-    
-    gpio_id_t gpio = to_gpio(interruptNumber);
-    
-    gpio_dev_unmap(gpio);
-    bk_gpio_disable_output(gpio);
-    bk_gpio_enable_input(gpio);
-    
-    gpio_int_type_t intType = arduinoPinStatusToGpioIntType(mode);
-    
-    if (mode == CHANGE) {
-        bool currentLevel = bk_gpio_get_input(gpio);
-        intType = currentLevel ? GPIO_INT_TYPE_FALLING_EDGE : GPIO_INT_TYPE_RISING_EDGE;
-    }
-    
+
     s_interruptCallbacks[interruptNumber].callback = nullptr;
     s_interruptCallbacks[interruptNumber].callbackParam = callback;
     s_interruptCallbacks[interruptNumber].param = param;
     s_interruptCallbacks[interruptNumber].hasParam = true;
-    s_interruptCallbacks[interruptNumber].mode = mode;
-    s_interruptCallbacks[interruptNumber].currentIntType = intType;
-    
-    bk_gpio_disable_interrupt(gpio);
-    bk_gpio_clear_interrupt(gpio);
-    bk_gpio_set_interrupt_type(gpio, intType);
-    bk_gpio_register_isr(gpio, gpio_isr_handler);
-    bk_gpio_enable_interrupt(gpio);
+    enableGpioInterrupt(interruptNumber, mode);
 }
 
 void detachInterrupt(pin_size_t interruptNumber) {

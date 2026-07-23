@@ -25,6 +25,28 @@ DEFAULT_TOOLCHAIN_HOSTS = (
     "arm64-apple-darwin",
 )
 
+DEFAULT_UPLOADER_MANIFEST = Path(__file__).resolve().parent / "uploaders.json"
+UPLOADER_TOOL_NAME = "bk_uploader"
+# Ordered so the package index lists Linux before Windows.
+UPLOADER_HOSTS = (
+    "x86_64-linux-gnu",
+    "x86_64-mingw32",
+)
+
+# Extra prebuilt tools referenced by fixed external URLs (e.g. env-python).
+# Each entry provides url/archiveFileName/checksum/size per host; nothing is
+# packaged locally, matching the arm-none-eabi-gcc external-reference pattern.
+DEFAULT_EXTRA_TOOLS_MANIFEST = Path(__file__).resolve().parent / "extra_tools.json"
+EXTRA_TOOL_HOSTS = (
+    "x86_64-linux-gnu",
+    "x86_64-mingw32",
+)
+
+# The uploader binaries used to ship inside the platform tree under tools/bk_loader/.
+# They are now distributed as a standalone Boards Manager tool, so exclude that
+# directory from the platform archive.
+PLATFORM_ARCHIVE_IGNORE = frozenset({".git", "__pycache__", "bk_loader"})
+
 DEFAULT_RELEASE_GZIP_LEVEL = 3
 
 
@@ -95,7 +117,7 @@ def create_platform_archive(output_dir: Path, platform_root: Path, version: str,
         tar.add(
             archived_platform_root,
             arcname="arduino-beken",
-            filter=_tar_ignore_filter(frozenset({".git", "__pycache__"})),
+            filter=_tar_ignore_filter(PLATFORM_ARCHIVE_IGNORE),
             recursive=True,
         )
     return archive
@@ -177,6 +199,84 @@ def create_host_tool_archive_lightweight(output_dir: Path, name: str, version: s
     return create_lightweight_archive(archive, f"{name}-{version}", files)
 
 
+def create_uploader_archive(output_dir: Path, version: str, root: Path, archive_name: str) -> Path:
+    root_name = f"{UPLOADER_TOOL_NAME}-{version}"
+    archive = output_dir / archive_name
+
+    if archive_name.endswith(".zip"):
+        temp_parent = output_dir / f"{root_name}-staging-win"
+        if temp_parent.exists():
+            shutil.rmtree(temp_parent)
+        shutil.copytree(root, temp_parent / root_name)
+        shutil.make_archive(str(archive.with_suffix("")), "zip", root_dir=temp_parent, base_dir=root_name)
+        shutil.rmtree(temp_parent)
+        return archive
+
+    with open_release_gzip_tar(archive) as tar:
+        add_tree_to_tar(tar, root, root_name)
+    return archive
+
+
+def create_uploader_archive_lightweight(output_dir: Path, version: str, root: Path, archive_name: str) -> Path:
+    archive = output_dir / archive_name
+    files = {
+        "VALIDATION.txt": (
+            "Lightweight validation archive for release metadata checks.\n"
+            f"source_uploader_root={root}\n"
+            "This archive intentionally omits the full uploader payload.\n"
+        )
+    }
+    return create_lightweight_archive(archive, f"{UPLOADER_TOOL_NAME}-{version}", files)
+
+
+def resolve_uploader_systems(
+    output_dir: Path,
+    systems: dict,
+    version: str,
+    roots: dict[str, Path | None],
+    lightweight: bool,
+) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    for host in UPLOADER_HOSTS:
+        sysinfo = systems.get(host)
+        if not isinstance(sysinfo, dict):
+            raise SystemExit(f"Uploader manifest missing systems entry for host {host}")
+        url = str(sysinfo.get("url", "") or "")
+        if not url:
+            raise SystemExit(f"Uploader manifest entry for {host} must define a url")
+        archive_name = str(sysinfo.get("archiveFileName", "") or "") or archive_name_from_url(url)
+        checksum_override = str(sysinfo.get("checksum", "") or "")
+        size_override = str(sysinfo.get("size", "") or "")
+
+        if checksum_override and size_override:
+            entries.append({"host": host, **remote_artifact_info(url, archive_name, checksum_override, size_override)})
+            continue
+
+        root = roots.get(host)
+        if root is None:
+            raise SystemExit(
+                f"Uploader root for {host} is required (no checksum/size override in manifest)"
+            )
+        if not root.exists():
+            raise SystemExit(f"Uploader root not found: {root}")
+
+        if lightweight:
+            archive = create_uploader_archive_lightweight(output_dir, version, root, archive_name)
+        else:
+            archive = create_uploader_archive(output_dir, version, root, archive_name)
+
+        entries.append(
+            {
+                "host": host,
+                "url": url,
+                "archiveFileName": archive_name,
+                "checksum": f"SHA-256:{sha256sum(archive)}",
+                "size": str(archive.stat().st_size),
+            }
+        )
+    return entries
+
+
 def artifact_info(base_url: str, path: Path) -> dict[str, str]:
     return {
         "url": f"{base_url}/{path.name}",
@@ -214,6 +314,62 @@ def read_toolchain_entry(manifest: dict, name: str) -> tuple[str, dict]:
     systems = entry.get("systems")
     if not isinstance(systems, dict):
         raise SystemExit(f"Toolchain manifest entry {name} must define a systems object")
+    return version, systems
+
+
+def resolve_extra_tools(manifest: dict) -> tuple[list[dict], list[dict[str, str]]]:
+    """Return (tool_entries, dependency_entries) for externally hosted tools."""
+    tools = manifest.get("tools")
+    if not isinstance(tools, list):
+        raise SystemExit("Extra tools manifest must define a 'tools' array")
+
+    tool_entries: list[dict] = []
+    dependency_entries: list[dict[str, str]] = []
+    for tool in tools:
+        if not isinstance(tool, dict):
+            raise SystemExit("Each extra tool entry must be a JSON object")
+        name = tool.get("name")
+        version = tool.get("version")
+        systems = tool.get("systems")
+        if not isinstance(name, str) or not name.strip():
+            raise SystemExit("Extra tool entry missing non-empty name")
+        if not isinstance(version, str) or not version.strip():
+            raise SystemExit(f"Extra tool {name} missing non-empty version")
+        if not isinstance(systems, dict):
+            raise SystemExit(f"Extra tool {name} must define a systems object")
+
+        system_entries: list[dict[str, str]] = []
+        for host in EXTRA_TOOL_HOSTS:
+            sysinfo = systems.get(host)
+            if not isinstance(sysinfo, dict):
+                raise SystemExit(f"Extra tool {name} missing systems entry for host {host}")
+            url = str(sysinfo.get("url", "") or "")
+            if not url:
+                raise SystemExit(f"Extra tool {name} entry for {host} must define a url")
+            archive_name = str(sysinfo.get("archiveFileName", "") or "") or archive_name_from_url(url)
+            checksum = str(sysinfo.get("checksum", "") or "")
+            size = str(sysinfo.get("size", "") or "")
+            if not checksum or not size:
+                raise SystemExit(
+                    f"Extra tool {name} entry for {host} must define checksum and size"
+                )
+            system_entries.append({"host": host, **remote_artifact_info(url, archive_name, checksum, size)})
+
+        tool_entries.append({"name": name, "version": version, "systems": system_entries})
+        dependency_entries.append({"packager": "beken", "name": name, "version": version})
+    return tool_entries, dependency_entries
+
+
+def read_uploader_entry(manifest: dict, name: str) -> tuple[str, dict]:
+    entry = manifest.get(name)
+    if not isinstance(entry, dict):
+        raise SystemExit(f"Uploader manifest missing entry for {name}")
+    version = entry.get("version")
+    if not isinstance(version, str) or not version.strip():
+        raise SystemExit(f"Uploader manifest entry {name} must define a non-empty version")
+    systems = entry.get("systems")
+    if not isinstance(systems, dict):
+        raise SystemExit(f"Uploader manifest entry {name} must define a systems object")
     return version, systems
 
 
@@ -313,6 +469,10 @@ def generate_package_index(
     sdk_archive: Path,
     toolchain_version: str,
     toolchain_systems: dict[str, tuple[Path | None, dict[str, str] | None]],
+    uploader_version: str,
+    uploader_system_entries: list[dict[str, str]],
+    extra_tool_entries: list[dict],
+    extra_dependencies: list[dict[str, str]],
     boards: list[dict[str, str]],
 ) -> dict:
     tool_name = sdk_tool_name(target)
@@ -354,6 +514,12 @@ def generate_package_index(
                                 "name": "arm-none-eabi-gcc",
                                 "version": toolchain_version,
                             },
+                            {
+                                "packager": "beken",
+                                "name": UPLOADER_TOOL_NAME,
+                                "version": uploader_version,
+                            },
+                            *extra_dependencies,
                         ],
                     }
                 ],
@@ -373,6 +539,12 @@ def generate_package_index(
                         "version": toolchain_version,
                         "systems": toolchain_system_entries,
                     },
+                    {
+                        "name": UPLOADER_TOOL_NAME,
+                        "version": uploader_version,
+                        "systems": uploader_system_entries,
+                    },
+                    *extra_tool_entries,
                 ],
             }
         ]
@@ -420,6 +592,23 @@ def main() -> int:
     parser.add_argument("--toolchain-macos-arm64-archive-name", default="", help="External macOS arm64 ARM GCC archive file name override")
     parser.add_argument("--toolchain-macos-arm64-checksum", default="", help="SHA-256 checksum for the external macOS arm64 ARM GCC archive override")
     parser.add_argument("--toolchain-macos-arm64-size", default="", help="Byte size for the external macOS arm64 ARM GCC archive override")
+    parser.add_argument(
+        "--uploader-manifest",
+        default=str(DEFAULT_UPLOADER_MANIFEST),
+        help="Uploader manifest JSON, default tools/uploaders.json under this repository",
+    )
+    parser.add_argument("--uploader-linux-root", default="", help="Linux bk_loader directory packaged into the bk_uploader tool")
+    parser.add_argument("--uploader-win-root", default="", help="Windows bk_loader directory packaged into the bk_uploader tool")
+    parser.add_argument(
+        "--extra-tools-manifest",
+        default=str(DEFAULT_EXTRA_TOOLS_MANIFEST),
+        help="Extra externally-hosted tools manifest JSON, default tools/extra_tools.json under this repository",
+    )
+    parser.add_argument(
+        "--package-json-archive-dir",
+        default="",
+        help="Optional directory to store versioned package index snapshots, e.g. dist/package_json/",
+    )
     parser.add_argument(
         "--lightweight",
         action="store_true",
@@ -504,6 +693,27 @@ def main() -> int:
         )
         resolved_toolchain_systems[host] = (archive, info)
 
+    uploader_manifest = load_toolchain_manifest(Path(args.uploader_manifest).resolve())
+    uploader_version, uploader_systems = read_uploader_entry(uploader_manifest, UPLOADER_TOOL_NAME)
+    uploader_roots: dict[str, Path | None] = {
+        "x86_64-linux-gnu": Path(args.uploader_linux_root).resolve() if args.uploader_linux_root else None,
+        "x86_64-mingw32": Path(args.uploader_win_root).resolve() if args.uploader_win_root else None,
+    }
+    uploader_system_entries = resolve_uploader_systems(
+        output_dir=output_dir,
+        systems=uploader_systems,
+        version=uploader_version,
+        roots=uploader_roots,
+        lightweight=args.lightweight,
+    )
+
+    extra_tool_entries: list[dict] = []
+    extra_dependencies: list[dict[str, str]] = []
+    extra_tools_manifest_path = Path(args.extra_tools_manifest).resolve()
+    if extra_tools_manifest_path.exists():
+        extra_tools_manifest = load_toolchain_manifest(extra_tools_manifest_path)
+        extra_tool_entries, extra_dependencies = resolve_extra_tools(extra_tools_manifest)
+
     boards = read_board_names(platform_root / "boards.txt")
     package_index = generate_package_index(
         target=args.target,
@@ -513,11 +723,24 @@ def main() -> int:
         sdk_archive=sdk_archive,
         toolchain_version=toolchain_version,
         toolchain_systems=resolved_toolchain_systems,
+        uploader_version=uploader_version,
+        uploader_system_entries=uploader_system_entries,
+        extra_tool_entries=extra_tool_entries,
+        extra_dependencies=extra_dependencies,
         boards=boards,
     )
 
     json_path = output_dir / f"package_beken_{args.target}_index.json"
-    json_path.write_text(json.dumps(package_index, indent=2) + "\n", encoding="utf-8")
+    json_text = json.dumps(package_index, indent=2) + "\n"
+    json_path.write_text(json_text, encoding="utf-8")
+
+    if args.package_json_archive_dir:
+        archive_dir = Path(args.package_json_archive_dir).resolve()
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        archive_path = archive_dir / f"package_beken_{args.target}_index_v{args.version}.json"
+        archive_path.write_text(json_text, encoding="utf-8")
+    else:
+        archive_path = None
 
     print(f"platform:  {platform_archive}")
     print(f"sdk:       {sdk_archive}")
@@ -527,7 +750,14 @@ def main() -> int:
             print(f"toolchain[{host}]: {archive}")
         elif info:
             print(f"toolchain[{host}]: {info['url']}")
+    for entry in uploader_system_entries:
+        print(f"uploader[{entry['host']}]: {entry['archiveFileName']} -> {entry['url']}")
+    for tool in extra_tool_entries:
+        for entry in tool["systems"]:
+            print(f"{tool['name']}[{entry['host']}]: {entry['archiveFileName']} -> {entry['url']}")
     print(f"json:      {json_path}")
+    if archive_path is not None:
+        print(f"json archive: {archive_path}")
     return 0
 
 

@@ -1,6 +1,6 @@
 {
   "name": "arduino",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "target": {
     "soc": "bk7239n"
   },
@@ -289,6 +289,34 @@
       {
         "source": "../../../build/bk7239n/arduino/bk7239n/armino/BLE/libBLE.a",
         "path": "arduino_lib/libBLE.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/WiFi/libWiFi.a",
+        "path": "arduino_lib/libWiFi.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/WiFiClientSecure/libWiFiClientSecure.a",
+        "path": "arduino_lib/libWiFiClientSecure.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/HTTPClient/libHTTPClient.a",
+        "path": "arduino_lib/libHTTPClient.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/PubSubClient/libPubSubClient.a",
+        "path": "arduino_lib/libPubSubClient.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/DNSServer/libDNSServer.a",
+        "path": "arduino_lib/libDNSServer.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/Websocket/libWebsocket.a",
+        "path": "arduino_lib/libWebsocket.a"
+      },
+      {
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino/WiFiClientSecure/libWiFiClientSecure.a",
+        "path": "arduino_lib/libWiFiClientSecure.a"
       },
       {
         "source": "../../../build/bk7239n/arduino/bk7239n/armino/WiFi/libWiFi.a",
@@ -591,51 +619,51 @@
         "path": "armino_as_lib/bk7239n/libs/libbk_common.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbluetooth_host_ble.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libbluetooth_host_ble.a",
         "path": "bk_libs/libbluetooth_host_ble.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbluetooth_controller_ble.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libbluetooth_controller_ble.a",
         "path": "bk_libs/libbluetooth_controller_ble.a"
       },
       {
-        "source": "../../../../bk_idk/components/bk_libs/bk7239n/libs/libdpd_phy.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libdpd_phy.a",
         "path": "bk_libs/libdpd_phy.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbk_phy_info.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libbk_phy_info.a",
         "path": "bk_libs/libbk_phy_info.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libwifi.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libwifi.a",
         "path": "bk_libs/libwifi.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libbk_coex.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libbk_coex.a",
         "path": "bk_libs/libbk_coex.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libble_wifi_exchange.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libble_wifi_exchange.a",
         "path": "bk_libs/libble_wifi_exchange.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libcoexistence.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libcoexistence.a",
         "path": "bk_libs/libcoexistence.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libmac802154.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libmac802154.a",
         "path": "bk_libs/libmac802154.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libproduct.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libproduct.a",
         "path": "bk_libs/libproduct.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libuid.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libuid.a",
         "path": "bk_libs/libuid.a"
       },
       {
-        "source": "../../../third_party_patches/bk_idk/bk_libs/bk7239n/libusb.a",
+        "source": "../../../build/bk7239n/arduino/bk7239n/armino_as_lib/bk7239n/libs/libusb.a",
         "path": "bk_libs/libusb.a"
       }
     ],

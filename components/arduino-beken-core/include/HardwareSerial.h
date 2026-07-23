@@ -17,6 +17,7 @@
 #include <stdint.h>
 
 #include "api/HardwareSerial.h"
+#include "api/RingBuffer.h"
 
 class HardwareSerial : public arduino::HardwareSerial {
 public:
@@ -37,10 +38,13 @@ public:
 
     operator bool() override { return m_started; }
 
+    // Called from UART RX ISR (same pattern as arduino_idk_old SerialUART).
+    void storeRxChar(uint8_t c);
+
 private:
     int m_uart_nr;
     bool m_started;
-    int m_peek;
+    arduino::RingBufferN<256> m_rxBuffer;
 };
 
 extern HardwareSerial Serial;

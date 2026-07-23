@@ -1,0 +1,62 @@
+diff --git a/components/lwip_intf_v2_1/dhcpd/dhcp-server.c b/components/lwip_intf_v2_1/dhcpd/dhcp-server.c
+index 0f5aa280a..09ffa0399 100755
+--- a/components/lwip_intf_v2_1/dhcpd/dhcp-server.c
++++ b/components/lwip_intf_v2_1/dhcpd/dhcp-server.c
+@@ -466,15 +466,16 @@ static unsigned int make_response(char *msg, enum dhcp_message_type type)
+ 
+ 	opt = (struct bootp_option *)offset;
+ 	opt->type = BOOTP_OPTION_NAMESERVER;
+-	if (dhcp_nack_dns_server_handler) {
++	/* Always advertise AP/router as DNS so captive-portal DNSServer can hijack. */
+ #if !IP_NAPT
+-		write_u32(opt->value, dhcps.router_ip);
++	write_u32(opt->value, dhcps.router_ip);
+ #else
++	if (dhcp_nack_dns_server_handler) {
+ 		write_u32(opt->value, ip4_addr_get_u32(ip_2_ip4(sta_dns)));
+-#endif
++	} else {
++		write_u32(opt->value, dhcps.router_ip);
+ 	}
+-	else
+-		write_u32(opt->value, 0);
++#endif
+ 	opt->length = 4;
+ 	offset += sizeof(struct bootp_option) + opt->length;
+ 
+@@ -1046,7 +1047,7 @@ out:
+ 	return ret;
+ }
+ 
+-void dhcp_enable_nack_dns_server(void)
++__attribute__((weak)) void dhcp_enable_nack_dns_server(void)
+ {
+ 	dhcp_nack_dns_server_handler = process_dns_message;
+ }
+diff --git a/components/psa_mbedtls/Kconfig b/components/psa_mbedtls/Kconfig
+index 4334048e1..0331f8b8f 100644
+--- a/components/psa_mbedtls/Kconfig
++++ b/components/psa_mbedtls/Kconfig
+@@ -20,11 +20,11 @@ menu "PSA Mbedtls"
+ 	
+ 		config MBEDTLS_SSL_IN_CONTENT_LEN
+ 			int "Config MBEDTLS_SSL_IN_CONTENT_LEN"
+-			default 4096
++			default 16384
+ 	
+ 		config MBEDTLS_SSL_OUT_CONTENT_LEN
+ 			int "Config MBEDTLS_SSL_OUT_CONTENT_LEN"
+-			default 4096
++			default 16384
+ 	
+ 		config TE200_ENTROPY
+ 			bool "Enable TE200 entropy"
+diff --git a/projects/app/config/bk7239n/config b/projects/app/config/bk7239n/config
+index e69de29bb..6abb567dd 100755
+--- a/projects/app/config/bk7239n/config
++++ b/projects/app/config/bk7239n/config
+@@ -0,0 +1,4 @@
++# TLS record buffer: Let's Encrypt cert chain needs >4KB per record.
++# BK7238 default is 16384; keep bk7239n Arduino vendor in sync after rebuild.
++CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN=16384
++CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN=16384

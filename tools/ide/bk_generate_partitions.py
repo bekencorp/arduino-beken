@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import os
+import runpy
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -28,6 +28,15 @@ def copy_if_exists(src: Path, dst: Path) -> None:
     shutil.copy2(src, dst)
 
 
+def prepend_sys_path(entries: list[Path]) -> None:
+    """Inject import roots without PYTHONPATH (ignored by Windows embeddable Python)."""
+    for entry in reversed(entries):
+        path_str = str(entry)
+        if path_str in sys.path:
+            sys.path.remove(path_str)
+        sys.path.insert(0, path_str)
+
+
 def main() -> int:
     args = parse_args()
     sdk_path = Path(args.sdk_path).resolve()
@@ -43,6 +52,7 @@ def main() -> int:
     synthetic_config_dir = synthetic_project_root / "config" / args.target
     generator_root = sdk_path / "tools" / "partition_gen"
     build_process_root = generator_root / "build_process"
+    py_libs_root = generator_root / "bk_py_libs"
     auto_partition_script = build_process_root / "bk_build_auto_partition.py"
 
     if not config_dir.exists():
@@ -51,31 +61,31 @@ def main() -> int:
         raise SystemExit(f"Partition CSV not found: {partitions_csv}")
     if not auto_partition_script.exists():
         raise SystemExit(f"Partition generator not found in exported SDK: {auto_partition_script}")
+    if not py_libs_root.exists():
+        raise SystemExit(f"Partition Python libs not found in exported SDK: {py_libs_root}")
 
     build_path.mkdir(parents=True, exist_ok=True)
     (build_path / "partitions").mkdir(parents=True, exist_ok=True)
     synthetic_config_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(partitions_csv, synthetic_config_dir / "auto_partitions.csv")
-    env = os.environ.copy()
-    python_paths = [
-        str(build_process_root),
-        str(generator_root / "bk_py_libs"),
-    ]
-    if env.get("PYTHONPATH"):
-        python_paths.append(env["PYTHONPATH"])
 
-    env.update(
+    # Partition scripts read these env vars; keep them, but do not rely on PYTHONPATH.
+    os.environ.update(
         {
             "PROJECT_DIR": str(synthetic_project_root),
             "PROJECT_NAME": args.project_name or "arduino-beken",
             "PROJECT_BUILD_DIR": str(build_path),
             "ARMINO_SOC_NAME": args.target,
             "BUILD_TARGETS": "app",
-            "PYTHONPATH": os.pathsep.join(python_paths),
         }
     )
 
-    subprocess.run([sys.executable, str(auto_partition_script)], check=True, env=env)
+    prepend_sys_path([build_process_root, py_libs_root])
+    print(
+        f"[bk_generate_partitions] sys.path inject: {build_process_root}; {py_libs_root}",
+        flush=True,
+    )
+    runpy.run_path(str(auto_partition_script), run_name="__main__")
 
     partitions_dir = build_path / "partitions"
     generated_include_dir = build_path / "bk_generated" / "include"

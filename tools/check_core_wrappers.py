@@ -29,8 +29,10 @@ def main() -> int:
     args = parse_args()
     project_root = Path(args.project_root).resolve()
     core_dir = Path(args.core_dir).resolve()
-    if not core_dir.is_relative_to(project_root):
-        raise SystemExit(f"--core-dir must be inside --project-root: {core_dir}")
+    try:
+        core_dir.relative_to(project_root)
+    except ValueError:
+        raise SystemExit(f"--core-dir must be inside --project-root: {core_dir}") from None
     # Wrappers are generated with this tree as the root (same as `platform_tree.build_platform_tree`).
     platform_root = core_dir.parent.parent
 
@@ -39,7 +41,7 @@ def main() -> int:
     if missing:
         raise SystemExit(f"Missing generated core wrapper file(s): {', '.join(missing)}")
 
-    mapping = CORE_SOURCE_MAP | CORE_HEADER_MAP
+    mapping = {**CORE_SOURCE_MAP, **CORE_HEADER_MAP}
     for name in expected_from_map:
         source_path = platform_root / mapping[name]
         wrapper_path = core_dir / name

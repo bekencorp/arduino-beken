@@ -14,7 +14,7 @@
 
 1. `bk_idk` 已可本地构建目标 SoC。
 2. `arduino-cli` 已安装。
-3. ARM GCC 工具链位于 `/opt/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi`，或在命令里按实际路径覆盖 `compiler.path`。
+3. ARM GCC 工具链位于 `/opt/gcc-arm-none-eabi-10.3-2021.10/bin/`（与 SDK 预编译库一致），或在命令里按实际路径覆盖 `compiler.path`。
 4. 本仓库根目录下存在 `.arduino-cli.yaml` 与 `examples/Blink/Blink.ino`。
 5. 如需验证 upload，准备好可访问的串口设备与开发板。
 
@@ -61,6 +61,7 @@ make TARGET=<target> prepare-platform
 2. 如果你是在直接验证 staged platform，本地切换 target 后要重新执行一次 `prepare-platform`。
 3. `build`、`build-base`、`export-sdk`、`release`、`release-check` 都会自动经过同一套 core wrapper 生成步骤。
 4. 更高层的 `cli-compile` / `cli-upload` 也会自动串上 `prepare-platform`。
+5. `build/platform-cli/<target>/arduino-beken/platform.txt` 会在本地 CLI 测试时自动把 `tools.python.cmd.linux` 覆盖为 `python3`（Boards Manager 安装 env-python 后则使用 release 平台里的 `{runtime.tools.env-python.path}` 配置）。
 
 如果需要显式校验 core wrapper 完整性，可执行：
 
@@ -160,7 +161,7 @@ arduino-cli compile --clean \
   --board-options PartitionScheme=<name> \
   --build-path .arduino-cli-test/build-<target>-blink \
   --build-property compiler.sdk.path="$(pwd)/dist/sdk/<target>" \
-  --build-property compiler.path=/opt/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin/ \
+  --build-property compiler.path=/opt/gcc-arm-none-eabi-10.3-2021.10/bin/ \
   libraries/Blink/examples/Blink
 ```
 
@@ -184,8 +185,8 @@ make SDK_DIR="$SDK_DIR" TARGET=bk7239n cli-upload \
 2. 使用 `Blink.ino.all-app.bin`，或当前 sketch 对应的 `*.all-app.bin` 作为输入镜像。
 3. 默认波特率为 `2000000`。
 4. 烧录结束后会传递 `--reboot`。
-5. 在本地 Linux x86_64 验证环境下，只要先执行过 `prepare-platform`，就不再需要额外的 `--upload-property` 去覆盖 `bk_loader` 路径。
-6. 由于所有平台的 uploader 可执行文件现在都已嵌入平台归档中，每种平台都会自动使用对应的正确 uploader（例如，Windows 使用 `bk_loader.exe`，Linux 使用 Linux 二进制文件，macOS 使用原生二进制文件）。
+5. 在本地 Linux x86_64 验证环境下，只要先执行过 `prepare-platform`，CLI 专用平台会把 `tools.bk-uploader.path.linux` 覆盖为 staged 树内的 `tools/bk_loader/linux`（若存在），不再依赖 Boards Manager 安装的 `bk_uploader` 工具。
+6. Boards Manager 发布路径下，`bk_uploader` 与 `env-python` 作为独立 tool 从 GitHub Release 下载；platform 包本身不再内嵌 `tools/bk_loader/`。
 
 如果本机串口命名不是 `/dev/ttyUSB0`，请替换为实际设备名。
 
@@ -211,10 +212,10 @@ make SDK_DIR="$SDK_DIR" TARGET=<target> release-check
 
 1. 生成 `dist/release-check/<target>/package_beken_<target>_index.json`。
 2. 生成 `arduino-beken-<target>-<version>.tar.gz`。
-3. 生成轻量版 `arduino-beken-sdk-<target>-<version>.tar.gz`；工具链条目引用官方来源的外部URL，而不是直接打包工具链。
-4. `dist/release-check/<target>/staging-platform/arduino-beken/` 中的 `boards.txt` 与 `platform.txt` 与 staged platform 一致。
-5. 由于 `tools/toolchains.json` 中已预定义了所有平台的 GCC 条目（包括 Linux、macOS、Windows），package index 里应包含相应的 `arm-none-eabi-gcc` 条目。
-6. Package index 正确列出仅平台归档、SDK 归档和工具链依赖（没有单独的 uploader 工具条目，因为 uploader 现在作为平台的一部分分发）。
+3. 生成轻量版 `arduino-beken-sdk-<target>-<version>.tar.gz`；`arm-none-eabi-gcc`、`bk_uploader`、`env-python` 等 tool 条目引用 GitHub Release 上的外部 URL，而不是直接打包进 index 对应的 archive。
+4. `dist/release-check/<target>/staging-platform/arduino-beken/` 中的 `boards.txt` 与 `platform.txt` 与 staged platform 一致；staged platform 的 `platform.txt` 版本应与 `VERSION` 文件一致（当前 `1.0.1`）。
+5. package index 里应包含 `arm-none-eabi-gcc`（Linux/Windows）、`bk_uploader`（Linux/Windows）、`env-python`（Linux/Windows）条目；所有 GitHub 托管 tool 的 URL 前缀为 `https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/`。
+6. platform 归档不再包含 `tools/bk_loader/`；`bk_uploader` 通过独立 tool 分发。
 
 ## 回归建议
 发生以下改动时，建议至少跑一遍完整验证矩阵：

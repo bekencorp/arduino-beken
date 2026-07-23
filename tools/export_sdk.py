@@ -11,8 +11,27 @@ from pathlib import Path
 
 CORE_ARCHIVE_TOKEN = "{build.core_archive}"
 ARDUINO_LIB_DIR = "arduino_lib"
-ARDUINO_LIBRARY_ARTIFACTS = ("libBLE.a", "libWiFi.a", "libArduinoBLE.a")
-ARDUINO_LIBRARY_NAMES = frozenset({"libBLE.a", "libWiFi.a"})
+ARDUINO_LIBRARY_ARTIFACTS = (
+    "libBLE.a",
+    "libWiFi.a",
+    "libArduinoBLE.a",
+    "libWiFiClientSecure.a",
+    "libHTTPClient.a",
+    "libPubSubClient.a",
+    "libDNSServer.a",
+    "libWebsocket.a",
+)
+ARDUINO_LIBRARY_NAMES = frozenset(
+    {
+        "libBLE.a",
+        "libWiFi.a",
+        "libWiFiClientSecure.a",
+        "libHTTPClient.a",
+        "libPubSubClient.a",
+        "libDNSServer.a",
+        "libWebsocket.a",
+    }
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -78,10 +97,10 @@ def read_build_vars(build_ninja: Path) -> tuple[str, str, str]:
             build_line = line
             continue
         if build_line and not flags_line and line.startswith("  FLAGS = "):
-            flags_line = line.removeprefix("  FLAGS = ")
+            flags_line = line[len("  FLAGS = "):]
             continue
         if build_line and not link_libs_line and line.startswith("  LINK_LIBRARIES = "):
-            link_libs_line = line.removeprefix("  LINK_LIBRARIES = ")
+            link_libs_line = line[len("  LINK_LIBRARIES = "):]
             break
 
     if not build_line or not flags_line or not link_libs_line:
@@ -187,6 +206,39 @@ def copy_tree(src: Path, dst: Path) -> None:
 def copy_file(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
+
+
+# Headers needed by WiFiClientSecure / Websocket under Arduino CLI/IDE.
+# make/CMake gets these via component REQUIRES; export_sdk must package them.
+TLS_INCLUDE_RELS = (
+    "components/psa_mbedtls/mbedtls_port/configs",
+    "components/psa_mbedtls/mbedtls_port/inc",
+    "components/psa_mbedtls/mbedtls_port/mbedtls/include",
+    "components/psa_mbedtls/mbedtls_ui",
+    "components/psa_mbedtls/mbedtls/include",
+    "components/os_source/freertos_v10/include",
+    "components/os_source/freertos_v10/portable/GCC/ARM_CM33_NTZ/non_secure",
+    "components/bk_rtos/freertos",
+    "components/bk_rtos/include",
+    "components/bk_startup/freertos",
+    "middleware/arch/cm33/os/freertos",
+)
+
+
+def export_tls_headers(sdk_dir: Path, output_root: Path) -> list[str]:
+    """Copy mbedtls + FreeRTOS public headers from bk_idk into the Arduino SDK."""
+    include_flags: list[str] = []
+    sdk_include_root = output_root / "include" / "sdk"
+    ensure_clean_dir(sdk_include_root)
+    for rel in TLS_INCLUDE_RELS:
+        src = sdk_dir / rel
+        if not src.exists():
+            continue
+        dst = sdk_include_root / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        copy_tree(src, dst)
+        include_flags.append(f"-I{{compiler.sdk.path}}/include/sdk/{rel}")
+    return include_flags
 
 
 def export_generated_headers(project_build_dir: Path, sdk_dir: Path, soc: str, output_root: Path) -> list[dict[str, str]]:
@@ -309,11 +361,21 @@ def classify_export_path(
     return output_root / "lib" / "external" / source.name
 
 
-def resolve_bk_lib_export_source(source: Path, sdk_dir: Path, project_root: Path, soc: str) -> Path:
-    """Prefer third_party_patches/bk_idk/bk_libs/<soc>/ over components/bk_libs/<soc>/ when present."""
+def resolve_bk_lib_export_source(
+    source: Path,
+    sdk_dir: Path,
+    project_root: Path,
+    soc: str,
+    cmake_build_dir: Path | None = None,
+) -> Path:
+    """Prefer build armino_as_lib output, then third_party_patches, then vendor bk_libs."""
     bk_libs_soc = sdk_dir / "components" / "bk_libs" / soc
     if not is_relative_to(source, bk_libs_soc):
         return source
+    if cmake_build_dir is not None:
+        built = cmake_build_dir / "armino_as_lib" / soc / "libs" / source.name
+        if built.is_file():
+            return built
     patch_root = project_root / "third_party_patches" / "bk_idk" / "bk_libs" / soc
     if not patch_root.is_dir():
         return source
@@ -418,7 +480,7 @@ def export_link_assets(
                 i += 1
                 continue
             dst = classify_export_path(source, cmake_build_dir, sdk_dir, output_root, project_lib)
-            copy_src = resolve_bk_lib_export_source(source, sdk_dir, project_root, soc)
+            copy_src = resolve_bk_lib_export_source(source, sdk_dir, project_root, soc, cmake_build_dir)
             copy_file(copy_src, dst)
             ld_libs.append(f"{{compiler.sdk.path}}/{dst.relative_to(output_root)}")
             exported_libs.append({"source": str(copy_src), "path": str(dst.relative_to(output_root))})
@@ -509,8 +571,12 @@ def main() -> int:
     write_flag_file(output_root / "flags" / "c_flags", dedupe(c_flags))
     write_flag_file(output_root / "flags" / "cpp_flags", dedupe(cpp_flags))
     write_flag_file(output_root / "flags" / "S_flags", dedupe(c_flags))
-    include_flags = [f"-I{{compiler.sdk.path}}/armino_as_lib/include"]
-    include_flags.append("-I{compiler.sdk.path}/include/generated")
+    tls_include_flags = export_tls_headers(sdk_dir, output_root)
+    include_flags = [
+        *tls_include_flags,
+        "-I{compiler.sdk.path}/armino_as_lib/include",
+        "-I{compiler.sdk.path}/include/generated",
+    ]
     write_flag_file(output_root / "flags" / "includes", include_flags)
     write_flag_file(output_root / "flags" / "ld_flags", ld_flags)
     write_flag_file(output_root / "flags" / "ld_libs", ld_libs)

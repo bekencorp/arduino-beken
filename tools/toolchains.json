@@ -1,30 +1,18 @@
 {
   "arm-none-eabi-gcc": {
-    "version": "13.3.1",
+    "version": "10.3-2021.10",
     "systems": {
       "x86_64-linux-gnu": {
-        "url": "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz",
-        "archiveFileName": "arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz",
-        "checksum": "SHA-256:95c011cee430e64dd6087c75c800f04b9c49832cc1000127a92a97f9c8d83af4",
-        "size": "147343268"
+        "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2",
+        "archiveFileName": "gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2",
+        "checksum": "SHA-256:97dbb4f019ad1650b732faffcc881689cedc14e2b7ee863d390e0a41ef16c9a3",
+        "size": "157089706"
       },
       "x86_64-mingw32": {
-        "url": "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi.zip",
-        "archiveFileName": "arm-gnu-toolchain-13.3.rel1-mingw-w64-i686-arm-none-eabi.zip",
-        "checksum": "SHA-256:e46fda043c0ce83582bc8db4b3ef85f77f4beb7333344c2f4193c17e1167a095",
-        "size": "297871203"
-      },
-      "x86_64-apple-darwin": {
-        "url": "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-darwin-x86_64-arm-none-eabi.tar.xz",
-        "archiveFileName": "arm-gnu-toolchain-13.3.rel1-darwin-x86_64-arm-none-eabi.tar.xz",
-        "checksum": "SHA-256:1ab00742d1ed0926e6f227df39d767f8efab46f5250505c29cb81f548222d794",
-        "size": "138514276"
-      },
-      "arm64-apple-darwin": {
-        "url": "https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-darwin-arm64-arm-none-eabi.tar.xz",
-        "archiveFileName": "arm-gnu-toolchain-13.3.rel1-darwin-arm64-arm-none-eabi.tar.xz",
-        "checksum": "SHA-256:fb6921db95d345dc7e5e487dd43b745e3a5b4d5c0c7ca4f707347148760317b4",
-        "size": "128649856"
+        "url": "https://github.com/bekencorp/arduino-beken/releases/download/V1.0.1/gcc-arm-none-eabi-10.3-2021.10-win32.zip",
+        "archiveFileName": "gcc-arm-none-eabi-10.3-2021.10-win32.zip",
+        "checksum": "SHA-256:d287439b3090843f3f4e29c7c41f81d958a5323aecefcf705c203bfd8ae3f2e7",
+        "size": "200578763"
       }
     }
   }

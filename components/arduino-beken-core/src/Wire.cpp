@@ -190,10 +190,9 @@ uint8_t TwoWire::endTransmission(bool) {
     if (!ensureInit()) {
         return 4;
     }
-    if (m_tx_length == 0) {
-        return 0;
-    }
 #if defined(CONFIG_I2C) && CONFIG_I2C
+    // m_tx_length == 0 is an address probe (WireScanner); SDK still sends the
+    // write address and returns ACK timeout when no device answers.
     const bk_err_t ret = bk_i2c_master_write(toBusId(m_bus_num), m_address, m_tx_buffer, m_tx_length, 1000);
     m_tx_length = 0;
 

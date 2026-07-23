@@ -350,6 +350,27 @@ bk_err_t bk_wifi_set_band_policy(wifi_band_policy_t policy);
  */
 wifi_band_policy_t bk_wifi_get_band_policy(void);
 #endif
+
+/**
+ * @brief     Set runtime Wi-Fi scan policy.
+ *
+ * @param     policy
+ *            - WIFI_FAST_SCAN: abort scan once the target SSID is found.
+ *            - WIFI_ALL_CHANNEL_SCAN: scan all requested channels.
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_PARAM: invalid policy value
+ */
+bk_err_t bk_wifi_set_scan_policy(wifi_scan_policy_t policy);
+
+/**
+ * @brief     Get current runtime Wi-Fi scan policy.
+ *
+ * @return Current scan policy.
+ */
+wifi_scan_policy_t bk_wifi_get_scan_policy(void);
+
 /**
  * @brief     Dump the scan result
  *
@@ -1082,6 +1103,54 @@ bk_err_t bk_wifi_set_default_ac(uint32_t ac);
   */
 bk_err_t bk_wifi_get_default_ac(uint32_t *ac);
 
+/**
+ * @brief Enable/disable prioritizing 5G channels during station scan.
+ *
+ * @param enable true to scan 5G channels first, false to keep normal order.
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_set_scan_5g_first(bool enable);
+
+/**
+ * @brief Get current 5G-first scan configuration.
+ *
+ * @param enable output flag, true means scan 5G channels first.
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_NULL_PARAM: parameter is NULL
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_get_scan_5g_first(bool *enable);
+
+#if CONFIG_WIFI_STA_SAME_SSID_BAND_PREF
+/**
+ * @brief STA: same SSID on 2.4G/5G — prefer the BSS with stronger signal
+ *        (SNR when valid, else RSSI). Interface A in product spec.
+ *
+ * @return BK_OK on success
+ */
+bk_err_t bk_wifi_sta_set_same_ssid_pref_stronger_signal(void);
+
+/**
+ * @brief STA: same SSID on 2.4G/5G — always use 5 GHz when a matching
+ *        5 GHz BSS exists, even if 2.4 GHz RSSI is higher. Interface B.
+ *
+ * @return BK_OK on success
+ */
+bk_err_t bk_wifi_sta_set_same_ssid_pref_5ghz(void);
+
+/**
+ * @brief Read current same-SSID dual-band preference for STA.
+ *
+ * @param pref non-NULL output
+ * @return BK_OK, or BK_ERR_NULL_PARAM if pref is NULL
+ */
+bk_err_t bk_wifi_sta_get_same_ssid_band_pref(wifi_sta_same_ssid_band_pref_t *pref);
+#endif
 
 /**
   * @brief     get tx raw ac info

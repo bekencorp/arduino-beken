@@ -54,10 +54,17 @@
 {compiler.sdk.path}/armino_as_lib/bk7239n/libs/libarduino-beken-linker.a
 {compiler.sdk.path}/arduino_lib/libBLE.a
 {compiler.sdk.path}/arduino_lib/libWiFi.a
+{compiler.sdk.path}/arduino_lib/libWiFiClientSecure.a
+{compiler.sdk.path}/arduino_lib/libHTTPClient.a
+{compiler.sdk.path}/arduino_lib/libPubSubClient.a
+{compiler.sdk.path}/arduino_lib/libDNSServer.a
+{compiler.sdk.path}/arduino_lib/libWebsocket.a
 -Wl,--cref
 -Wl,--print-memory-usage,--Map={build.path}/{build.project_name}.map
 -fno-rtti
 -fno-lto
+{compiler.sdk.path}/arduino_lib/libWiFiClientSecure.a
+{compiler.sdk.path}/arduino_lib/libWiFi.a
 {build.core_archive}
 {compiler.sdk.path}/armino_as_lib/bk7239n/libs/libutf8.a
 {compiler.sdk.path}/armino_as_lib/bk7239n/libs/libtemp_detect.a

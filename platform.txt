@@ -3,11 +3,12 @@ version=@ARDUINO_BEKEN_VERSION@
 
 tools.arm-none-eabi-gcc.path={runtime.tools.arm-none-eabi-gcc.path}
 tools.arduino-beken-sdk.path={runtime.tools.arduino-beken-sdk.path}
-tools.bk-uploader.path.linux={runtime.platform.path}/tools/bk_loader/linux
-tools.bk-uploader.path.windows={runtime.platform.path}/tools/bk_loader/windows
+tools.bk-uploader.path.linux={runtime.tools.bk_uploader.path}
+tools.bk-uploader.path.windows={runtime.tools.bk_uploader.path}
 tools.bk-uploader.path.macosx=/usr/local/bin
 tools.python.cmd=python3
-tools.python.cmd.windows=python.exe
+tools.python.cmd.windows={runtime.tools.env-python.path}/python.exe
+tools.python.cmd.linux={runtime.tools.env-python.path}/python3
 tools.bk-uploader.cmd=bk_loader
 tools.bk-uploader.cmd.windows=bk_loader.exe
 
@@ -32,7 +33,7 @@ compiler.c.flags=@{compiler.sdk.path}/flags/c_flags
 compiler.cpp.flags=@{compiler.sdk.path}/flags/cpp_flags
 compiler.S.flags=@{compiler.sdk.path}/flags/S_flags
 
-build.extra_flags=-DARDUINO={runtime.ide.version} -DARDUINO_ARCH_{build.arch} -DARDUINO_{build.board} -DARDUINO_BEKEN_IDE_BUILD=1 -I{build.path}/bk_generated/include -I{build.path}/sketch -I{runtime.platform.path}/libraries/BLE/src -I{runtime.platform.path}/libraries/WiFi/src
+build.extra_flags=-DARDUINO={runtime.ide.version} -DARDUINO_ARCH_{build.arch} -DARDUINO_{build.board} -DARDUINO_BEKEN_IDE_BUILD=1 -I{build.path}/bk_generated/include -I{build.path}/sketch -I{runtime.platform.path}/libraries/BLE/src -I{runtime.platform.path}/libraries/WiFi/src -I{runtime.platform.path}/libraries/WiFiClientSecure/src -I{runtime.platform.path}/libraries/HTTPClient/src -I{runtime.platform.path}/libraries/PubSubClient/src -I{runtime.platform.path}/libraries/DNSServer/src -I{runtime.platform.path}/libraries/Websocket/src
 
 recipe.hooks.prebuild.1.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_generate_partitions.py" --sdk-path "{compiler.sdk.path}" --platform-path "{runtime.platform.path}" --build-path "{build.path}" --project-name "{build.project_name}" --target "{build.mcu}" --partitions-csv "{build.partitions_csv}"
 recipe.hooks.prebuild.2.pattern="{tools.python.cmd}" "{runtime.platform.path}/tools/ide/bk_prepare_core.py" --core-path "{build.core.path}" --project-name "{build.project_name}" --sketch-path "{build.source.path}"
@@ -87,7 +88,9 @@ debug_config.bk7239n.cortex-debug.custom.overrideRestartCommands.2=thb setup
 debug_config.bk7239n.cortex-debug.custom.overrideRestartCommands.3=c
 
 # Current support level:
-# - Linux/Windows uploaders ship inside the platform tree under tools/bk_loader/
+# - Linux/Windows uploaders are distributed as a separate Boards Manager tool (bk_uploader);
+#   Arduino IDE/CLI downloads the per-host archive and tools.bk-uploader.path resolves to {runtime.tools.bk_uploader.path}.
+#   Local Arduino CLI staging overrides tools.bk-uploader.path.<os> with the in-tree tools/bk_loader/<os> root (see stage_platform.py).
 # - macOS upload uses bk_loader from a manual .pkg install (default /usr/local/bin; override tools.bk-uploader.path.macosx in platform.local.txt)
 # - compile/link consume a packaged arduino-beken SDK export
 # - final image generation emits both {build.project_name}.all-app.bin and legacy all-app.bin

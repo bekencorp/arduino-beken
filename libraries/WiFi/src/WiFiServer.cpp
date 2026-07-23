@@ -1,39 +1,129 @@
-// Copyright 2025-2026 Beken
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "WiFiServer.h"
 
-#include "WiFiClient.h"
-
-WiFiServer::WiFiServer(uint16_t port) : _port(port) {
+extern "C" {
+#include <lwip/errno.h>
+#include <lwip/sockets.h>
 }
 
-WiFiClient WiFiServer::available(uint8_t *) {
-    return WiFiClient();
-}
+#undef write
+#undef close
 
-void WiFiServer::begin() {
-}
-
-size_t WiFiServer::write(uint8_t) {
-    return 0;
+int WiFiServer::setTimeout(uint32_t seconds) {
+  struct timeval tv = {};
+  tv.tv_sec = seconds;
+  tv.tv_usec = 0;
+  if (lwip_setsockopt(_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+    return -1;
+  }
+  return lwip_setsockopt(_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 }
 
 size_t WiFiServer::write(const uint8_t *, size_t) {
-    return 0;
+  return 0;
 }
 
-uint8_t WiFiServer::status() {
-    return 0;
+void WiFiServer::stopAll() {}
+
+WiFiClient WiFiServer::available() {
+  if (!_listening) {
+    return WiFiClient();
+  }
+
+  int client_sock;
+  if (_accepted_sockfd >= 0) {
+    client_sock = _accepted_sockfd;
+    _accepted_sockfd = -1;
+  } else {
+    struct sockaddr_in client = {};
+    socklen_t cs = sizeof(client);
+    client_sock = lwip_accept(_sockfd, reinterpret_cast<struct sockaddr *>(&client), &cs);
+  }
+
+  if (client_sock >= 0) {
+    int val = 1;
+    if (lwip_setsockopt(client_sock, SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(val)) == 0) {
+      val = _noDelay ? 1 : 0;
+      if (lwip_setsockopt(client_sock, IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val)) == 0) {
+        return WiFiClient(client_sock);
+      }
+    }
+    lwip_close(client_sock);
+  }
+  return WiFiClient();
+}
+
+void WiFiServer::begin(uint16_t port) {
+  begin(port, 1);
+}
+
+void WiFiServer::begin(uint16_t port, int enable) {
+  if (_listening) {
+    return;
+  }
+  if (port) {
+    _port = port;
+  }
+
+  struct sockaddr_in server = {};
+  _sockfd = lwip_socket(AF_INET, SOCK_STREAM, 0);
+  if (_sockfd < 0) {
+    return;
+  }
+
+  lwip_setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
+  server.sin_family = AF_INET;
+  server.sin_addr.s_addr = static_cast<uint32_t>(_addr);
+  server.sin_port = PP_HTONS(_port);
+
+  if (lwip_bind(_sockfd, reinterpret_cast<struct sockaddr *>(&server), sizeof(server)) < 0) {
+    end();
+    return;
+  }
+  if (lwip_listen(_sockfd, _max_clients) < 0) {
+    end();
+    return;
+  }
+
+  int nonblock = 1;
+  lwip_ioctl(_sockfd, FIONBIO, &nonblock);
+  _listening = true;
+  _noDelay = false;
+  _accepted_sockfd = -1;
+}
+
+void WiFiServer::setNoDelay(bool nodelay) {
+  _noDelay = nodelay;
+}
+
+bool WiFiServer::getNoDelay() {
+  return _noDelay;
+}
+
+bool WiFiServer::hasClient() {
+  if (_accepted_sockfd >= 0) {
+    return true;
+  }
+
+  struct sockaddr_in client = {};
+  socklen_t cs = sizeof(client);
+  _accepted_sockfd =
+      lwip_accept(_sockfd, reinterpret_cast<struct sockaddr *>(&client), &cs);
+  return _accepted_sockfd >= 0;
+}
+
+void WiFiServer::end() {
+  if (_sockfd >= 0) {
+    lwip_close(_sockfd);
+    _sockfd = -1;
+  }
+  _accepted_sockfd = -1;
+  _listening = false;
+}
+
+void WiFiServer::close() {
+  end();
+}
+
+void WiFiServer::stop() {
+  end();
 }

@@ -1,0 +1,67 @@
+#ifndef WIFITYPE_H_
+#define WIFITYPE_H_
+
+#include <stddef.h>
+#include <stdint.h>
+
+#define WIFI_SCAN_RUNNING (-1)
+#define WIFI_SCAN_FAILED (-2)
+
+typedef enum {
+  WIFI_OFF = 0,
+  WIFI_STA = 1,
+  WIFI_AP = 2,
+  WIFI_AP_STA = 3
+} WiFiMode_t;
+
+#define WWM_POWERDOWN WIFI_OFF
+#define WWM_STATION WIFI_STA
+#define WWM_SOFTAP WIFI_AP
+#define WWM_STATIONAP WIFI_AP_STA
+typedef WiFiMode_t WF_WK_MD_E;
+
+typedef enum {
+  WSS_IDLE = 0,
+  WSS_CONNECTING,
+  WSS_PASSWD_WRONG,
+  WSS_NO_AP_FOUND,
+  WSS_CONN_FAIL,
+  WSS_CONN_SUCCESS,
+  WSS_GOT_IP,
+  WSS_DHCP_FAIL
+} WF_STATION_STAT_E;
+
+typedef enum {
+  WAAM_OPEN = 0,
+  WAAM_WEP,
+  WAAM_WPA_PSK,
+  WAAM_WPA2_PSK,
+  WAAM_WPA_WPA2_PSK,
+  WAAM_WPA_WPA3_SAE,
+  WAAM_UNKNOWN
+} WF_AP_AUTH_MODE_E;
+
+typedef enum {
+  WL_IDLE_STATUS = 0,
+  WL_NO_SSID_AVAIL = 1,
+  WL_SCAN_COMPLETED = 2,
+  WL_CONNECTED = 3,
+  WL_CONNECT_FAILED = 4,
+  WL_CONNECTION_LOST = 5,
+  WL_DISCONNECTED = 6
+} wl_status_t;
+
+typedef enum {
+  ARDUINO_EVENT_WIFI_READY = 0,
+  ARDUINO_EVENT_WIFI_SCAN_DONE,
+  ARDUINO_EVENT_WIFI_STA_START,
+  ARDUINO_EVENT_WIFI_STA_STOP,
+  ARDUINO_EVENT_WIFI_STA_CONNECTED,
+  ARDUINO_EVENT_WIFI_STA_DISCONNECTED,
+  ARDUINO_EVENT_WIFI_STA_GOT_IP,
+  ARDUINO_EVENT_MAX
+} arduino_event_id_t;
+
+typedef size_t WiFiCallbackId;
+
+#endif
