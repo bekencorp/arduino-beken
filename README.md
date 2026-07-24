@@ -1,4 +1,4 @@
-**Current Version: 1.0.0**
+**Current Version: 1.0.1**
 
 Language: [English](README.md) | [简体中文](README_CN.md)
 
@@ -7,6 +7,7 @@ Arduino Core for Beken Wi-Fi Chipsets.
 ## 📋 Contents
 
 - [Hardware](#-hardware)
+- [What's New in 1.0.1](#-whats-new-in-101)
 - [Quick Start](#-quick-start)
 - [Documentation](#-documentation)
 
@@ -14,10 +15,22 @@ Arduino Core for Beken Wi-Fi Chipsets.
 ## 🛠️ Supported Hardware
 
 ### Current Supported
+
 - **BK7239N**: Dual-band 2.4/5 GHz Wi-Fi 6 (802.11a/b/g/n/ac/ax), Bluetooth Low Energy (BLE) 6.0, and IEEE 802.15.4 wireless MCU
 
 ### Development Kits
+
 - M39N Development Board (BK7239N-based)
+
+## ✨ What's New in 1.0.1
+
+Expanded wireless/networking libraries and examples:
+
+- **WiFi**: more STA/AP/UDP/server examples (13 sketches)
+- **HTTPClient**: HTTP/HTTPS client examples (6 sketches)
+- **PubSubClient**: MQTT examples (7 sketches)
+- **Websocket**: WebSocket example (1 sketch)
+- **DNSServer**: Captive portal example
 
 ## 💡 Quick Start
 
